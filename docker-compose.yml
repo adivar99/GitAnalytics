@@ -1,0 +1,28 @@
+
+services:
+  backend:
+    image: template/backend
+    env_file:
+      - .env
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/app:/app
+  frontend:
+    image: template/frontend
+    env_file:
+      - .env
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend/angular-app:/src/angular-app
+  proxy:
+    image: template/proxy:latest
+    ports:
+      - "80:80"

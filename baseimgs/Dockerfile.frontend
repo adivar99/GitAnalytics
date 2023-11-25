@@ -1,0 +1,12 @@
+FROM node:16-alpine
+
+RUN apk -U upgrade
+
+WORKDIR /src/angular-app
+
+ENV PATH /src/angular-app/node_modules/.bin:$PATH
+
+# install and cache app dependencies
+COPY ./angular-app/package.json /src/angular-app/package.json
+RUN npm install
+RUN npm install -g @angular/cli

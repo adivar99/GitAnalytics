@@ -1,0 +1,19 @@
+<div class="dashboard" *ngIf="isProject">
+    <h1>My Tasks</h1>
+    <!-- <mat-button>Create Task</mat-button> -->
+    <div class="task-container" *ngIf="task_list.length > 0">
+        <mat-card class="task-card" *ngFor="let task of task_list">
+            <mat-card-header>
+                <mat-card-title>{{task.type}}</mat-card-title>
+                <mat-card-subtitle>{{task.updated}}</mat-card-subtitle>
+            </mat-card-header>
+        </mat-card>
+        <p>Task Container!</p>
+    </div>
+    <div class="task-empty">
+        <p>No Tasks Found ;(</p>
+    </div>
+</div>
+<div class="no-project" *ngIf="!isProject">
+    <p>Create a New project</p>
+</div>

@@ -1,0 +1,43 @@
+<body>
+  <div class="container" id="container" #mainContainer>
+    <div class="form-container sign-up-container">
+      <form action="#">
+        <h1>Create An Account</h1>
+        <span>use your email for registration</span>
+        <div class="error-div" *ngIf="isError">
+          <h4>{{error_msg}}</h4>
+        </div>
+        <input type="text" name="name" placeholder="Name"/>
+        <input type="email" name="name" placeholder="Email"/>
+        <input type="password" name="password" placeholder="Password"/>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+    <div class="form-container sign-in-container">
+      <form (ngSubmit)="submit()">
+        <h1>Sign In</h1>
+        <span>Login to your Account</span>
+        <div class="error-div" *ngIf="isError">
+          <h4>{{error_msg}}</h4>
+        </div>
+        <input type="text" name="name" placeholder="Email" [(ngModel)]="login.username"/>
+        <input type="password" name="password" placeholder="Password" [(ngModel)]="login.password"/>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Already have an Account?</h1>
+          <p>To continue your service with us, please login with your account here</p>
+          <button class="ghost" id="signIn" (click)="removeContainerClass()">Sign In</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Don't have an Account?</h1>
+          <p>A Journey of a 1000 steps begins with a single click</p>
+          <button class="ghost" id="signUp" (click)="addContainerClass()">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

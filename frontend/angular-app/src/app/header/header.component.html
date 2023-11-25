@@ -1,0 +1,66 @@
+<mat-toolbar class="header-div">
+    <span class="title">
+        InspiraGen
+    </span>
+    <span class="spacer"></span>
+    <button mat-button
+        *ngIf="isLoggedIn && project_menu.length == 0"
+        (click)="toggleProjectWindow()">
+        <mat-icon>{{project_menu_placeholder().icon}}</mat-icon>
+        <span>{{project_menu_placeholder().name}}</span>
+    </button>
+    <button mat-button
+        *ngIf="isLoggedIn && project_menu.length > 0"
+        [matMenuTriggerFor]="projectMenu">
+        <mat-icon>{{project_menu_placeholder().icon}}</mat-icon>
+        <span>{{project_menu_placeholder().name}}</span>
+    </button>
+    <mat-menu #projectMenu="matMenu" xPosition="before" yPosition="below">
+        <button mat-menu-item
+            *ngFor="let proj of project_menu"
+            (click)="switchProject(proj.id)">
+            {{proj.title}}
+        </button>
+        <hr>
+        <button mat-menu-item
+            *ngIf="current_user?.is_admin"
+            (click)="toggleProjectWindow()">
+            <mat-icon>add</mat-icon>
+            <span>Create Project</span>
+        </button>
+        <button mat-menu-item
+            *ngIf="!current_user?.is_admin"
+            (click)="toggleProjectWindow()">
+            <mat-icon>add</mat-icon>
+            <span>Create Project Request</span>
+        </button>
+    </mat-menu>
+    <a mat-button (click)="loginButton()" *ngIf="!isLoggedIn">{{login_value}}</a>
+    <button mat-button
+        *ngIf="isLoggedIn"
+        [matMenuTriggerFor]="menu">
+        <mat-icon>person</mat-icon>
+        <span>{{current_user?.name}}</span>
+    </button>
+    <mat-menu #menu="matMenu" xPosition="before" yPosition="below">
+        <button mat-menu-item (click)="menuClick('account')">Account</button>
+        <button mat-menu-item (click)="menuClick('logout')">Log Out</button>
+    </mat-menu>
+</mat-toolbar>
+<mat-sidenav mode="side" [(opened)]="isProjectWindowOpened" position="end" class="project">
+    <div>
+        <h2>Create Project</h2>
+        <br>
+        <form #form="ngForm" (ngSubmit)="createProject(form)" id="proj-form">
+            <!-- <mat-form-field> -->
+                <input matInput type="text" name="name" placeholder="Name" ngModel>
+            <!-- </mat-form-field> -->
+            <!-- <mat-form-field> -->
+                <mat-label for="desc">Description: </mat-label>
+                <textarea matInput type="text" name="description" id="desc" ngModel></textarea>
+            <!-- </mat-form-field> -->
+            <button type="submit" mat-button>Create</button>
+            <button type="reset" mat-button (click)="toggleProjectWindow()">Cancel</button>
+        </form>
+    </div>
+</mat-sidenav>

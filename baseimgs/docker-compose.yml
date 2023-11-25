@@ -1,0 +1,14 @@
+services:
+  backendbuilder:
+    image: template/backendbuilder:latest
+    build: backend
+  frontendbuilder:
+    image: template/frontendbuilder:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+  proxy:
+    image: template/proxy:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
