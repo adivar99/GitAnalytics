@@ -4,9 +4,12 @@ from typing import Optional, List
 
 from fastapi import HTTPException
 
-from app.schemas import User as model, UserCreate as model_create, UserUpdate as model_update, UserLogin
-from app.models.user import User as db_model
-from app.schemas.enums import UserType
+from app.models import User as model, UserCreate as model_create, UserUpdate as model_update, UserLogin
+from app.db_models.user import User as db_model
+from app.db_models.uproj import UProj
+from app.db_models.company import Company
+from app.models.enums import UserType
+from app.utils.utils import get_randID
 
 class CRUDUser():
     def get_by_id(self, db_session: Session, id: int) -> model:
@@ -64,6 +67,24 @@ class CRUDUser():
             li.append(user.id)
         
         return li
+    
+    def get_by_project(self, db_session: Session, project_id: int) -> List[model]:
+        return (
+            db_session
+            .query(db_model)
+            .join(db_model.user_proj)
+            .filter(UProj.proj_id == project_id)
+            .all()
+        )
+    
+    def get_by_company(self, db_session: Session, company_id: int) -> List[model]:
+        return (
+            db_session
+            .query(db_model)
+            .join(db_model.company)
+            .filter(Company.id == company_id)
+            .all()
+        )
 
     def check_user(self, db_session: Session, login: UserLogin) -> bool:
         if login.username is not None:
@@ -72,13 +93,9 @@ class CRUDUser():
             user = self.get_by_email(db_session, email=login.email)
         
         if not user:
-            print(f"User not found")
             return None
-        print(f"User found")
         if not verify_password(login.password, user.password):
-            print("password not match")
             return None
-        print("password match")
         return user
 
     def is_superuser(self, db_obj: model) -> bool:

@@ -45,13 +45,13 @@ class OAuth2PasswordBearerCookie(OAuth2):
         return param
 
 
-reusable_oauth2 = OAuth2PasswordBearerCookie(
-    tokenUrl=f"/login/access-token",
-)
-
-# reusable_oauth2 = OAuth2PasswordBearer(
-#    tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+# reusable_oauth2 = OAuth2PasswordBearerCookie(
+#     tokenUrl=f"/login/access-token",
 # )
+
+reusable_oauth2 = OAuth2PasswordBearerCookie(
+   tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+)
 
 
 def get_db() -> Generator:

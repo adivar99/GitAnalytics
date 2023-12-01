@@ -1,4 +1,4 @@
-FROM template/frontendbuilder:latest as builder-image
+FROM capstone/frontendbuilder:latest as builder-image
 COPY . /src
 WORKDIR /src/angular-app
 RUN npm run build

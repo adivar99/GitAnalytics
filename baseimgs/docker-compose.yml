@@ -1,14 +1,17 @@
 services:
   backendbuilder:
-    image: template/backendbuilder:latest
+    image: git-analytics/backendbuilder:latest
     build: backend
   frontendbuilder:
-    image: template/frontendbuilder:latest
+    image: git-analytics/frontendbuilder:latest
     build:
       context: .
       dockerfile: Dockerfile.frontend
-  proxy:
-    image: template/proxy:latest
+  proxybuilder:
+    image: git-analytics/proxy:latest
     build:
       context: .
       dockerfile: Dockerfile.proxy
+  binarybuilder:
+    image: git-analytics/binarybuilder:latest
+    build: binary

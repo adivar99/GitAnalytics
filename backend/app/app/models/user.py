@@ -1,15 +1,41 @@
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from typing import Optional
+from pydantic import Field, BaseModel, EmailStr
+# from pydantic.networks import EmailStr
 
-from app.db.base_class import Base
-from app.schemas.enums import UserType
-from app.utils.utils import get_uuid_int
+from app.models.enums import UserType
 
-class User(Base):
-    id = Column(Integer, primary_key=True, default=lambda: get_uuid_int())
-    name = Column(String)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    password = Column(String)
-    user_type = Column(Enum(UserType, native_enum=False, create_constraint=False))
-    is_active = Column(Boolean, default=True)
+class UserBase(BaseModel):
+    id: int = None
+    name: str = Field(None, title="Name of User", example="John")
+    username: str = Field(None, title="UserName of User", example="jdoe99")
+    email: EmailStr = Field(..., title="Email of User", example="john.doe@example.com")
+    password: str = Field(..., title="password of user", example="aweoweofiewnf")
+    is_active: bool = Field(True, title="Is user active", example=True)
+    is_admin: bool = Field(False, title="Is user admin of company", example=False)
+    user_type: UserType = Field(UserType.USER, title="Type of user", example=UserType.USER)
+    company_id: int = Field(..., title="Company Id of User", example=1)
+
+
+class UserCreate(UserBase):
+    pass
+
+
+class UserUpdate(UserBase):
+    pass
+
+class User(UserBase):
+    pass
+
+class UserLogin:
+    username: Optional[str]
+    email: Optional[str]
+    password: str
+
+class UserUI(BaseModel):
+    name: str = Field(None, title="Name of User", example="John")
+    username: str = Field(None, title="UserName of User", example="jdoe99")
+    email: EmailStr = Field(..., title="Email of User", example="john.doe@example.com")
+    is_active: bool = Field(True, title="Is user active", example=True)
+    is_admin: bool = Field(False, title="Is user admin of company", example=False)
+    user_type: UserType = Field(UserType.USER, title="Type of user", example=UserType.USER)
+    company_id: int

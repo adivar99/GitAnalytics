@@ -1,7 +1,7 @@
 
 services:
   backend:
-    image: template/backend
+    image: capstone/backend
     env_file:
       - .env
     build:
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./backend/app:/app
   frontend:
-    image: template/frontend
+    image: capstone/frontend
     env_file:
       - .env
     build:
@@ -22,7 +22,15 @@ services:
       - "4200:4200"
     volumes:
       - ./frontend/angular-app:/src/angular-app
+      - /src/angular-app/node_modules
   proxy:
-    image: template/proxy:latest
+    image: capstone/proxy:latest
+    depends_on:
+     - frontend
+     - backend
     ports:
       - "80:80"
+
+networks:
+  capstone-website40_default:
+    external: true

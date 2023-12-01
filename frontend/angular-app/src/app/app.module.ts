@@ -3,7 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from './material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http'
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -14,7 +13,6 @@ import { LandingComponent } from './components/landing/landing.component';
 import { AuthService } from './services/auth.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
-import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +20,6 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     LoginPageComponent,
     HeaderComponent,
     LandingComponent,
-    DashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,7 +32,6 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     FormsModule
   ],
   providers: [AuthService],
-  bootstrap: [AppComponent],
-  // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

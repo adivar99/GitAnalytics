@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { UtilitiesService } from '../services/utilities.service';
 import { AuthService } from '../services/auth.service';
 import { HttpService } from '../services/http.service';
@@ -30,9 +30,7 @@ export class HeaderComponent implements OnInit {
     private auth: AuthService,
     private http: HttpService,
     private perm: PermissionService,
-  ) {
-    document.addEventListener
-  }
+  ) {}
 
 
   ngOnInit(): void {
@@ -52,14 +50,12 @@ export class HeaderComponent implements OnInit {
       console.log(proj)
       this.current_proj = proj
     })
-    this.auth.projectsChanged.subscribe((_) => {
-      let projects = this.auth.get_projects();
-      this.project_menu = projects;
-      let curr = projects[0];
-      console.log("After proj change: ")
-      console.log(curr)
-      this.auth.set_project(curr);
-    })
+    // this.auth.refresh_projects()
+    // let projects = this.auth.get_projects()
+    // console.log("Getting projects: ")
+    // console.log(projects)
+    // this.project_menu = projects
+    // this.current_proj = projects[0]
   }
 
   loginButton() {
@@ -79,8 +75,8 @@ export class HeaderComponent implements OnInit {
   project_menu_placeholder() {
     if(this.current_proj) {
       return {
-        'name': this.current_proj.title,
-        'icon': 'arrow_drop_down'
+        'name': this.current_proj.name,
+        'icon': 'down'
       }
      } else if (this.current_user?.is_admin) {
         return {
@@ -122,13 +118,8 @@ export class HeaderComponent implements OnInit {
     this.toggleProjectWindow()
   }
 
-  switchProject(proj_id: number) {
-    for(let proj of this.project_menu) {
-      if (proj.id === proj_id) {
-        this.auth.set_project(proj);
-        break;
-      }
-    }
+  updateProject(proj: string) {
+    console.log("Updating project", proj)
   }
 
 }

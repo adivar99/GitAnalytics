@@ -17,8 +17,6 @@ export class LoginPageComponent {
   ) {}
 
   login = {username: '', password: ''}
-  error_msg = '';
-  isError = false
 
   @ViewChild('mainContainer', {'static': false}) containerRef: ElementRef;
 
@@ -47,17 +45,10 @@ export class LoginPageComponent {
         this.authService.set_logged_in(true);
         this.authService.get_current_user()
         this.utils.redirect_page_to('dashboard')
-    }, (resp) => {
-      this.setErrorMessage(resp.error.detail)
+    }, (error) => {
+      // this.notifyService.error(error.error.detail);
+      console.log(error)
     })
-  }
-
-  setErrorMessage(err: string) {
-    this.error_msg = err
-    this.isError = true;
-    setTimeout(() => {
-      this.isError = false
-    }, 4000);
   }
 
 }

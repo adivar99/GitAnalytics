@@ -14,7 +14,6 @@ export class AuthService {
   currentProject = new EventEmitter<any>();
   currentUser = new EventEmitter<User>();
   LoggedIn = new EventEmitter<boolean>();
-  projectsChanged = new EventEmitter<any>();
 
   // get_logged_in() {
   //   return this.
@@ -49,7 +48,6 @@ export class AuthService {
     this.http.getData('/project/me').subscribe((data) => {
       if(data != undefined) {
         this.set_projects(data)
-        this.projectsChanged.emit()
       }
     }, (error) => {
       this.set_project(undefined)

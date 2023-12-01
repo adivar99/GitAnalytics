@@ -1,4 +1,4 @@
-FROM template/backendbuilder:latest as backend-base
+FROM capstone/backendbuilder:latest as backend-base
 
 ENV PYTHONPATH=/app
 

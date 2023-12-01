@@ -1,19 +1,26 @@
-<div class="dashboard" *ngIf="isProject">
+<div class="dashboard">
     <h1>My Tasks</h1>
-    <!-- <mat-button>Create Task</mat-button> -->
-    <div class="task-container" *ngIf="task_list.length > 0">
-        <mat-card class="task-card" *ngFor="let task of task_list">
-            <mat-card-header>
-                <mat-card-title>{{task.type}}</mat-card-title>
-                <mat-card-subtitle>{{task.updated}}</mat-card-subtitle>
-            </mat-card-header>
-        </mat-card>
-        <p>Task Container!</p>
-    </div>
-    <div class="task-empty">
-        <p>No Tasks Found ;(</p>
-    </div>
+    <button (click)="toggleOther()">Other toggle</button>
 </div>
-<div class="no-project" *ngIf="!isProject">
-    <p>Create a New project</p>
-</div>
+<!-- <mat-sidenav mode="side" position="end" [(opened)]="isOtherOpened">
+    Other sidenav
+</mat-sidenav> -->
+
+<!-- app.component.html -->
+
+<mat-grid-list cols="2" rowHeight="400px">
+    <!-- First Cell -->
+    <mat-grid-tile>
+      <div class="chart-container">
+        <canvas #chart1></canvas>
+      </div>
+    </mat-grid-tile>
+  
+    <!-- Second Cell -->
+    <mat-grid-tile>
+      <div class="chart-container">
+        <canvas #chart2></canvas>
+      </div>
+    </mat-grid-tile>
+  </mat-grid-list>
+  

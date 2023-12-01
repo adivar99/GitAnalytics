@@ -4,9 +4,6 @@
       <form action="#">
         <h1>Create An Account</h1>
         <span>use your email for registration</span>
-        <div class="error-div" *ngIf="isError">
-          <h4>{{error_msg}}</h4>
-        </div>
         <input type="text" name="name" placeholder="Name"/>
         <input type="email" name="name" placeholder="Email"/>
         <input type="password" name="password" placeholder="Password"/>
@@ -17,9 +14,6 @@
       <form (ngSubmit)="submit()">
         <h1>Sign In</h1>
         <span>Login to your Account</span>
-        <div class="error-div" *ngIf="isError">
-          <h4>{{error_msg}}</h4>
-        </div>
         <input type="text" name="name" placeholder="Email" [(ngModel)]="login.username"/>
         <input type="password" name="password" placeholder="Password" [(ngModel)]="login.password"/>
         <button type="submit">Sign In</button>
