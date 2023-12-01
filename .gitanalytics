@@ -1,0 +1,10 @@
+id:
+  user: 1
+
+exclude_branches:
+  - "^(?!.*origin/).*$"
+  - "origin/cherry-pick-*"
+
+host:
+  domain: "http://10.37.140.7"
+  port: 80

@@ -1,19 +1,77 @@
 import re
+import os
 import git
 import sys
 import json
 import yaml
+import requests
+
+from typing import List, Dict
 from datetime import datetime, timedelta
 
 
 ##################################################
 
-excluded_branches = ['cherry-pick-*', "^(?!.*origin/).*$"]
+# excluded_branches = ['origin/cherry-pick-*', "^(?!.*origin/).*$"]
+
+
+class HttpAgent:
+    def __init__(self, domain: str, port: int) -> None:
+        self.domain = domain
+        self.port = port
+
+    def get(self, url, args: Dict = {}):
+        arg_str = "?"
+        for arg, val in args.items():
+            arg_str += f"{arg}={val}&"
+        resp = requests.get(url)
+        return resp.status_code == 200
+
+
+    def post(self, url: str, args: Dict = {}, data: dict = {}):
+        arg_str = "?"
+        for arg, val in args.items():
+            arg_str += f"{arg}={val}&"
+        resp = requests.post(url, data)
+        return resp.status_code == 200
 
 class GitAgent:
-    def __init__(self):
-        self.main()
+    def __init__(self, repo_dir):
+        self.master_details = []
+        self.branches = []
+        self.timespan: timedelta = timedelta(days=90)
 
+        self.load_config()
+
+        self.http = HttpAgent(self.config["host"]["domain"], self.config["host"]["domain"])
+
+        try:
+            repo = git.Repo(repo_dir)
+        
+        except Exception as e:
+            print("Error occurred while Initializing Repo:", file=sys.stderr)
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
+        
+
+        self.analyse_master(repo)
+
+        self.analyse_branches(repo)
+
+    def load_config(self):
+        if not os.path.exists(".gitanalytics"):
+            print("Could not find config file. Please create a .gitanalytics file for configuration")
+            return
+        
+        self.config = None
+        try:
+            with open('.gitanalytics', "r") as config_file:
+                self.config = yaml.safe_load(config_file)
+        except Exception as e:
+            print("Error occurred while opening config file: ", file=sys.stderr)
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
+        
     def get_commit_details(self, commit):
         commit_data = {
             'hexsha': commit.hexsha,
@@ -35,59 +93,50 @@ class GitAgent:
         return commit_data
     
     def excluded_branch(self, branch):
-        for reg in excluded_branches:
-            return re.match(branch, reg)
+        for reg in self.config["exclude_branches"]:
+            if re.match(reg, branch) is not None:
+                return False
+        return True
+    
+    def analyse_master(self, repo):
+        # Get the master branch
+        master_branch = repo.heads.master
+
+        # Switch to the master branch
+        repo.head.reference = master_branch
+
+        # Get all commits in the last three months
+        last_three_months = datetime.now() - self.timespan
+        commits = list(repo.iter_commits('master', since=last_three_months))
+
+        print(f"Found {len(commits)} commits in master since "+str(datetime.now()-self.timespan))
+        for commit in commits:
+            self.master_details.append(self.get_commit_details(commit))
+
+        # with open('master_details.json', 'w') as outfile:
+        #     json.dump(self.master_details, outfile, indent=4)
+
+    def analyse_branches(self, repo):
+        # Iterate through the other branches and store the info
+        for branch in repo.refs:
+            branch_details = {}
+            if branch != repo.heads.master:
+                if self.excluded_branch(branch.name):
+                    continue
+                
+                branch_details["name"] = branch.name
+                branch_details["last_commits"] = []
+
+                since_date = datetime.now() - self.timespan
+                commits = list(repo.iter_commits(branch, max_count=10, since=since_date))
+                for commit in commits:
+                    branch_details["last_commits"].append(self.get_commit_details(commit))
+            self.branches.append(branch_details)
+        
+        print(f"Found {len(self.branches)} branches")
+        
+        # with open('branch_details.json', 'w') as outfile:
+        #     json.dump(self.branches, outfile, indent=4)
 
 
-
-    def main(self):
-        try:
-            repo = git.Repo()
-            
-            config = None
-            with open('.gitanalytics', "r") as config_file:
-                config = yaml.safe_load(config_file)
-
-            # Get the master branch
-            master_branch = repo.heads.master
-
-            # Switch to the master branch
-            repo.head.reference = master_branch
-
-            # Get all commits in the last three months
-            last_three_months = datetime.now() - timedelta(days=90)
-            commits = list(repo.iter_commits('master', since=last_three_months))
-
-            print(f"Found {len(commits)}")
-            master_details = []
-            for commit in commits:
-                master_details.append(self.get_commit_details(commit))
-
-
-            with open('master_details.json', 'w') as outfile:
-                json.dump(master_details, outfile, indent=4)
-
-            # Iterate through the other branches and store the info
-            branches = []
-            for branch in repo.refs:
-                branch_details = {}
-                if branch != master_branch:
-                    if self.excluded_branch(branch):
-                        continue  #config.exclude_branches:
-                    branch_details["name"] = branch.name
-                    branch_details["last_commits"] = []
-
-                    commits = list(repo.iter_commits('branch', max_count=10, since=last_three_months))
-                    for commit in commits:
-                        branch_details["last_commits"].append(self.get_commit_details(commit))
-                branches.append(branch_details)
-            
-            with open('branch_details.json', 'w') as outfile:
-                json.dump(branch_details, outfile, indent=4)
-
-        except Exception as e:
-            print("Error occurred while executing the command:", file=sys.stderr)
-            print(str(e), file=sys.stderr)
-            sys.exit(1)
-
-GitAgent()
+GitAgent(".")
