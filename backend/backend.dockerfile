@@ -1,4 +1,4 @@
-FROM capstone/backendbuilder:latest as backend-base
+FROM git-analytics/backendbuilder:latest as backend-base
 
 ENV PYTHONPATH=/app
 

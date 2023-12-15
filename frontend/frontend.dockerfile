@@ -1,4 +1,4 @@
-FROM capstone/frontendbuilder:latest as builder-image
+FROM git-analytics/frontendbuilder:latest as builder-image
 
 WORKDIR /src/angular-app/
 

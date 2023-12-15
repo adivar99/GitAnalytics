@@ -1,7 +1,7 @@
-
+version: "3"
 services:
   backend:
-    image: capstone/backend
+    image: git-analytics/backend
     env_file:
       - .env
     build:
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./backend/app:/app
   frontend:
-    image: capstone/frontend
+    image: git-analytics/frontend
     env_file:
       - .env
     build:
@@ -24,7 +24,7 @@ services:
       - ./frontend/angular-app:/src/angular-app
       - /src/angular-app/node_modules
   proxy:
-    image: capstone/proxy:latest
+    image: git-analytics/proxybuilder:latest
     depends_on:
      - frontend
      - backend

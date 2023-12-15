@@ -19,21 +19,45 @@ class HttpAgent:
     def __init__(self, domain: str, port: int) -> None:
         self.domain = domain
         self.port = port
+        self.api_prefix = "/api/v1"
 
-    def get(self, url, args: Dict = {}):
+        self.MASTER_INFO_API = "/agent/master_info"
+        self.BRANCH_INFO_API = "/agent/branch_info"
+
+    def __get(self, url, *, args: Dict = {}):
         arg_str = "?"
         for arg, val in args.items():
             arg_str += f"{arg}={val}&"
-        resp = requests.get(url)
+        
+        if len(args) > 0:
+            url += arg_str
+
+        ga_url = f"{self.domain}:{self.port}{url}"
+        
+        resp = requests.get(ga_url)
         return resp.status_code == 200
 
 
-    def post(self, url: str, args: Dict = {}, data: dict = {}):
+    def __post(self, url: str, *, args: Dict = {}, data: dict = {}):
         arg_str = "?"
         for arg, val in args.items():
             arg_str += f"{arg}={val}&"
-        resp = requests.post(url, data)
+        
+        if len(args) > 0:
+            url += arg_str
+
+        ga_url = f"{self.domain}:{self.port}{url}"
+        
+        resp = requests.post(ga_url, data)
         return resp.status_code == 200
+    
+    def send_master_info(self, data: dict):
+        uri = f"{self.api_prefix}{self.MASTER_INFO_API}"
+        resp = self.__post(uri, data=data)
+
+    def send_branch_info(self, data: dict):
+        uri = f"{self.api_prefix}{self.MASTER_INFO_API}"
+        resp = self.__post(uri, data=data)
 
 class GitAgent:
     def __init__(self, repo_dir):
@@ -43,7 +67,7 @@ class GitAgent:
 
         self.load_config()
 
-        self.http = HttpAgent(self.config["host"]["domain"], self.config["host"]["domain"])
+        self.http = HttpAgent(self.config["host"]["domain"], self.config["host"]["port"])
 
         try:
             repo = git.Repo(repo_dir)
@@ -57,6 +81,8 @@ class GitAgent:
         self.analyse_master(repo)
 
         self.analyse_branches(repo)
+
+        self.sync_info()
 
     def load_config(self):
         if not os.path.exists(".gitanalytics"):
@@ -137,6 +163,14 @@ class GitAgent:
         
         # with open('branch_details.json', 'w') as outfile:
         #     json.dump(self.branches, outfile, indent=4)
+    
+    def sync_master_info(self):
+        data = json.dumps(self.master_details)
+        self.http.send_master_info(data)
 
+    def sync_branch_info(self):
+        data = json.dumps(self.branches)
+        self.http.send_master_info(data)
 
-GitAgent(".")
+if __name__ == "__main__":
+    GitAgent(".")
