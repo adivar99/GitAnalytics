@@ -1,9 +1,10 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpService } from 'src/app/services/http.service';
-// import { Chart, registerables } from 'chart.js';
-import Chart from 'chart.js/auto';
-// Chart.register(...registerables);
+import { Chart, registerables } from 'chart.js';
+
+// import Chart from 'chart.js/auto';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',

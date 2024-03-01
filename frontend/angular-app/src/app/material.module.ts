@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatGridListModule } from '@angular/material/grid-list';
+import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { MatListModule } from '@angular/material/list';
 
 
@@ -21,6 +21,7 @@ const modules = [
   MatSidenavModule,
   MatGridListModule,
   MatListModule,
+  MatGridTile
 ];
 
 @NgModule({
