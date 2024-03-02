@@ -1,6 +1,0 @@
-pyoxidizer
-GitPython
-matplotlib
-pyyaml
-requests
-typing

@@ -1,5 +1,5 @@
 # Use the official Python image as a parent image
-FROM python:3.11
+FROM python:3.10
 
 # Set the working directory to /app
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY . /app
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # Run pyoxidizer to compile the python code into a binary
-RUN pyoxidizer build --output-dir /app/bin --spec-file /app/pyoxidizer.bzl
+# RUN pyoxidizer build --release
 
 # Copy the compiled binary to /bin in the container
 # COPY bin/ /bin
