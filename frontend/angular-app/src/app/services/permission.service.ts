@@ -14,16 +14,16 @@ export class PermissionService {
     private auth: AuthService,
   ) {
     // Whenever the current project is changed
-    this.auth.currentProject.subscribe((proj) => {
-      // Get new permissions from backend
-      let params = {'proj_id': proj.id}
-      this.http.getData('/user/permissions', params).subscribe((perms: PERMISSION[]) => {
-        this.my_permissions = perms
-        console.log("Got permissions")
-        console.log(perms)
-        this.permChanged.emit(this.my_permissions)
-      })
-    })
+    // this.auth.currentProject.subscribe((proj) => {
+    //   // Get new permissions from backend
+    //   let params = {'proj_id': proj.id}
+    //   this.http.getData('/user/permissions', params).subscribe((perms: PERMISSION[]) => {
+    //     this.my_permissions = perms
+    //     console.log("Got permissions")
+    //     console.log(perms)
+    //     this.permChanged.emit(this.my_permissions)
+    //   })
+    // })
   }
 
   my_permissions: PERMISSION[] = [];

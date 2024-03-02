@@ -1,20 +1,13 @@
-# Use the official Python image as a parent image
-FROM python:3.10
+# Stage 1:
+# Use base Alpine image to prepare our binary, label it 'app'
+FROM golang:alpine as app
+# Add golangdocker user and group so that the Docker process in Scratch doesn't run as root
+RUN addgroup -S golangdocker \
+ && adduser -S -u 10000 -g golangdocker golangdocker
+# Change to the correct directory to hold our application source code
+WORKDIR /go/src/app
+# Copy all the files from the base of our repository to the current directory defined above
+COPY . .
 
-# Set the working directory to /app
-WORKDIR /app
-
-# Copy the current directory contents into the container at /app
-COPY . /app
-
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
-# Run pyoxidizer to compile the python code into a binary
-# RUN pyoxidizer build --release
-
-# Copy the compiled binary to /bin in the container
-# COPY bin/ /bin
-
-# Run the compiled binary
-# CMD ["/bin/app"]
+# Compile the application to a single statically-linked binary file
+RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"' -tags timetzdata

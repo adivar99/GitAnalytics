@@ -9,6 +9,7 @@ from app.api import deps
 from app.models import Project, User
 from app.models.enums import ProjectAccess
 from app.utils.verify_user import verify_user
+from app.utils import utils
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -31,9 +32,11 @@ def create_project(
 ):
     if not current_user.is_admin:
         raise HTTPException(status_code=400, detail="No Permission to create Project")
-    
+        
     if not crud.crud_company.get_by_id(db_session, proj_in.company_id):
         raise HTTPException(status_code=400, detail="Company not Found")
+    
+    proj_in.uuid = utils.get_uuid()
     
     proj = crud.crud_project.create(db_session, obj_in=proj_in)
     logger.info(proj)
@@ -46,6 +49,23 @@ def create_project(
         access=ProjectAccess.MANAGER
     )
     _ = crud.crud_uproj.create(db_session, obj_in)
+    return proj
+
+@router.post("/refresh_projid")
+def refresh_projectid(
+    proj_id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+):
+    if not verify_user.can_update_project(db, current_user, proj_id=proj_id):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User does not have permission "
+        )
+    
+    proj_in = models.ProjectUpdate(uuid=utils.get_uuid())
+    proj = crud.crud_project.update(db, id=proj_id, obj_in=proj_in)
+    logger.info(f"Refreshing Project UUID for Project {proj_id}")
     return proj
 
 
@@ -61,6 +81,9 @@ def update_project(
     
     if not crud.crud_project.get_by_id(db_session, id=proj_id):
         raise HTTPException(status_code=400, detail="Project Not Found")
+    
+    if not verify_user.can_update_project(db_session, current_user, proj_id):
+        raise HTTPException(statuscode=401, detail="No Permission to update project")
         
     proj = crud.crud_project.update(db_session, id=proj_id, obj_in=proj_in)
     return proj

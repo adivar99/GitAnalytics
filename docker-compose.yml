@@ -24,7 +24,7 @@ services:
       - ./frontend/angular-app:/src/angular-app
       - /src/angular-app/node_modules
   proxy:
-    image: git-analytics/proxybuilder:latest
+    image: git-analytics/proxy:latest
     depends_on:
      - frontend
      - backend

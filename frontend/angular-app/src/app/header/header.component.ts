@@ -50,12 +50,12 @@ export class HeaderComponent implements OnInit {
       console.log(proj)
       this.current_proj = proj
     })
-    // this.auth.refresh_projects()
-    // let projects = this.auth.get_projects()
-    // console.log("Getting projects: ")
-    // console.log(projects)
-    // this.project_menu = projects
-    // this.current_proj = projects[0]
+    this.auth.refresh_projects()
+    let projects = this.auth.get_projects()
+    console.log("Getting projects: ")
+    console.log(projects)
+    this.project_menu = projects
+    this.current_proj = projects[0]
   }
 
   loginButton() {

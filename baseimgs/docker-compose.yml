@@ -12,6 +12,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.proxy
-  # binarybuilder:
-  #   image: git-analytics/binarybuilder:latest
-  #   build: binary
+  binarybuilder:
+    image: git-analytics/binarybuilder:latest
+    build: binary

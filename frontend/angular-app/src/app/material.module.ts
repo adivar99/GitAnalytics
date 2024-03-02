@@ -21,7 +21,7 @@ const modules = [
   MatSidenavModule,
   MatGridListModule,
   MatListModule,
-  MatGridTile
+  // MatGridTile
 ];
 
 @NgModule({

@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import Field, BaseModel
 
 from app.models.enums import ProjectStatus
-from app.utils.utils import get_uuid_int
+from app.utils.utils import get_uuid_int, get_uuid
 
 
 class ProjectBase(BaseModel):
@@ -10,6 +10,7 @@ class ProjectBase(BaseModel):
     description: Optional[str] = Field(None, title="Description of Project", example="Example description for the first Project")
     status: ProjectStatus = Field(ProjectStatus.PENDING, title="Status of Project", example=ProjectStatus.PENDING)
     company_id: int = Field(..., title="Company of Project", example=1)
+    uuid: str = Field(..., title="UUID to refer to the project", examples=get_uuid())
 
 class ProjectCreate(ProjectBase):
     pass
