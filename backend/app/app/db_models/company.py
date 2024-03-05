@@ -9,5 +9,5 @@ class Company(Base):
     name = Column(String)
     created = Column(DateTime)
     serial = Column(String)
-    # user = relationship("User", cascade="all, delete-orphan", back_populates="company")
+    user = relationship("User", cascade="all, delete-orphan", back_populates="company")
     project = relationship("Project", cascade="all, delete-orphan", back_populates="company")

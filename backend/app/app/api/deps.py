@@ -102,7 +102,7 @@ async def get_current_user(
         )
     return user
 
-async def get_scanner_user(
+async def get_agent_user(
         security_scopes: SecurityScopes,
         db: Session = Depends(get_db),
         token: str = Depends(reusable_oauth2),

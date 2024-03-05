@@ -15,5 +15,5 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
     company_id = Column(Integer, ForeignKey("company.id"))
-    # company = relationship("Company", back_populates="user")
-    # user_proj = relationship("UProj", back_populates="user")
+    company = relationship("Company", back_populates="user")
+    user_proj = relationship("UProj", back_populates="User")

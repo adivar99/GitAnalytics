@@ -18,9 +18,9 @@ Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # enable foreign keys for all sqlite3 db connections
-@event.listens_for(Engine, "connect")
-def _set_sqlite_pragma(dbapi_connection, connection_record):
-    if isinstance(dbapi_connection, Connection):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
+# @event.listens_for(Engine, "connect")
+# def _set_sqlite_pragma(dbapi_connection, connection_record):
+#     if isinstance(dbapi_connection, Connection):
+#         cursor = dbapi_connection.cursor()
+#         cursor.execute("PRAGMA foreign_keys=ON")
+#         cursor.close()

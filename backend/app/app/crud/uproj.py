@@ -49,6 +49,19 @@ class CRUD_UProj():
             .all()
         )
     
+    def get_first_by_proj(self, db_session: Session, proj_id: int) -> model:
+        """
+        Get the first user of the project i.e whoever created it
+        """
+        return (
+            db_session
+            .query(db_model)
+            .filter(db_model.proj_id == proj_id)
+            .order(db_model.id)
+            .first()
+        )
+
+    
     def get_by_user_n_proj(self, db_session: Session, user_id: int, proj_id: int) -> Optional[model]:
         """
         Return instance of User's access to Project

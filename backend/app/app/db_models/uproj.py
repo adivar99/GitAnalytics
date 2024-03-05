@@ -10,5 +10,5 @@ class UProj(Base):
     proj_id = Column(Integer, ForeignKey("project.id"))
     project = relationship("Project", back_populates="user_proj")
     user_id = Column(Integer, ForeignKey("user.id"))
-    # user = relationship("User", back_populates="user_proj")
+    User = relationship("User", back_populates="user_proj")
     access = Column(Enum(ProjectAccess, native_enum=False, create_constraint=False))
