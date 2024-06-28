@@ -68,7 +68,7 @@ func main() {
 	}
 
 	log.Println("Sending master info to agent")
-	apiClient := http.NewAPIClient("http://localhost")
+	apiClient := http.NewAPIClient("http://localhost", "aefwwefwef")
 	resp, err := apiClient.SendMasterInfo(jsonData)
 	if err != nil {
 		log.Fatalf("Error Sending Master info data: %v", err)

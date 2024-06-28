@@ -1,3 +1,4 @@
+version: "3.3"
 services:
   backendbuilder:
     image: git-analytics/backendbuilder:latest
@@ -15,3 +16,8 @@ services:
   binarybuilder:
     image: git-analytics/binarybuilder:latest
     build: binary
+  postgres:
+    image: git-analytics/postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres

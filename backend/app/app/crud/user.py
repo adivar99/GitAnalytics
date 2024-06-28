@@ -5,7 +5,7 @@ from typing import Optional, List
 from fastapi import HTTPException
 
 from app.models import User as model, UserCreate as model_create, UserUpdate as model_update, UserLogin
-from app.db_models.user import User as db_model
+from app.db_models.user import Users as db_model
 from app.db_models.uproj import UProj
 from app.db_models.company import Company
 from app.models.enums import UserType
