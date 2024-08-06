@@ -1,0 +1,5 @@
+FROM postgres:12-alpine
+RUN apk -U upgrade
+
+ARG VERSION
+ENV VERSION=$VERSION

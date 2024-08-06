@@ -64,4 +64,5 @@ func (api *APIClient) getToken(uuid string) error {
 	}
 	log.Println("Got token: " + string(resp))
 	// api.token = resp.access_token
+	return nil
 }

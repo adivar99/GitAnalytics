@@ -30,7 +30,19 @@ services:
      - backend
     ports:
       - "80:80"
+  db:
+    image: git-analytics/postgres:latest
+    command: postgres -c 'max_connections=500'
+    volumes:
+        - app-db-data:/var/lib/postgresql/data/pgdata:z
+    env_file:
+        - .env
+    environment:
+        - PGDATA=/var/lib/postgresql/data/pgdata
+
+volumes:
+    app-db-data:
 
 networks:
-  capstone-website40_default:
+  git-analytics_default:
     external: true

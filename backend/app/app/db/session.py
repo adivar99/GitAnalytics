@@ -7,12 +7,11 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from app.core.config import settings
 
 # from db import base
-
+print(f"{str(settings.SQLALCHEMY_DATABASE_URI) = } 11")
 engine = create_engine(
-    settings.SQLALCHEMY_DATABASE_URI,
-    connect_args={'check_same_thread': False}
+    str(settings.SQLALCHEMY_DATABASE_URI), pool_pre_ping=True, pool_size=10, max_overflow=30
 )
-db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+# db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
