@@ -1,4 +1,4 @@
-# InspiraGen
+# GitAnalytics
 
 
 ### Dependencies:
