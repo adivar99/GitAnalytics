@@ -6,11 +6,11 @@ from fastapi.security import OAuth2, SecurityScopes
 from fastapi.security.utils import get_authorization_scheme_param
 from jose import JWTError, jwt
 from pydantic import ValidationError
-from sqlalchemy.orm import Session
 
 from app import crud, models
 from app.core import security
 from app.core.config import settings
+from app.db.session import Session
 
 
 class OAuth2PasswordBearerCookie(OAuth2):
