@@ -12,7 +12,9 @@ import { HeaderComponent } from './header/header.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { AuthService } from './services/auth.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ProjectCardComponent } from './components/dashboard/project-card/project-card.component'
+
 
 @NgModule({
   declarations: [
@@ -20,6 +22,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
     LoginPageComponent,
     HeaderComponent,
     LandingComponent,
+    ProjectCardComponent,
   ],
   imports: [
     BrowserModule,
