@@ -66,17 +66,15 @@ function service_help() {
     echo "      $0 build dev      - Builds dev images."
     echo "      $0 build prod     - Builds prod images. [TODO]"
     echo "      $0 build baseimgs - Builds baseimages only."
-    echo "$0 release - Builds all images and generates release tar."
-    echo "$0 onprem_release - Builds all images and generates onprem release tar."
+    echo "$0 release - Builds all images and generates release tar. [TODO]"
     echo "$0 run - Takes argument and runs as per subcommand below"
     echo "$0 start   - Starts prebuilt image."
     echo "      $0 start dev  - Starts dev image instance."
     echo "      $0 start prod - Starts production image instance. [TODO]"
     echo "$0 stop    - Stops running $project."
-    echo "$0 status  - Current status of $project."
+    echo "$0 status  - Current status of $project. [TODO]"
     echo "$0 logs [Service]    - Shows logs of given service or of all services by default."
     echo "$0 shell <Service> <sub-service>  - Gives access to shell of given service."
-    echo "$0 archive   - Archives current HEAD to an archive. [TODO]"
     echo "$0 setup   - Should run this for first time and when version of this file is changed). [TODO]"
     echo "-----------------------------------------------------"
 }
@@ -117,7 +115,7 @@ case $1 in
         echo "Please provide a Service and a command to run"
         exit 1
     fi
-    docker-compose exec -it --rm $1 $2
+    docker-compose exec -it $1 $2
     ;;
 "stop")
     echo "Stopping running containers"

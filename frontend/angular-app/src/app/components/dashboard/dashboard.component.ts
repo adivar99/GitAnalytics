@@ -6,24 +6,23 @@ import { Chart, registerables } from 'chart.js';
 // import Chart from 'chart.js/auto';
 Chart.register(...registerables);
 
+const displayedColumns: string[] = ["name", "users", "rating"];
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
-
-
 export class DashboardComponent implements OnInit, AfterViewInit{
-
-  @ViewChild('chart1') chart1Canvas: any;
-  @ViewChild('chart2') chart2Canvas: any;
-
   constructor(
     private auth: AuthService,
     private http: HttpService,
   ) {}
 
-  projects = [];
+  projects = [
+    {id: 1, name: "FortiDevSec", description: "Product to scan your static and Dynamic code", users: 4, rating: 4.5, access: "user", lastScanned: new Date()},
+    {id: 2, name: "FortiDAST", description: "Product to scan your dynamic website for vulns", users: 8, rating: 2.8, access: "user", lastScanned: new Date()},
+    {id: 3, name: "FortiAIOps", description: "Product that leverages AI to evaluate your attack surfaces", users: 6, rating: 3.5, access: "user", lastScanned: new Date()},
+  ];
   isOtherOpened = false;
 
   ngOnInit(): void {
@@ -33,48 +32,14 @@ export class DashboardComponent implements OnInit, AfterViewInit{
   get_projects() {
     this.http.getData('/project/me').subscribe(
       (data: any) => {
-        this.auth.set_projects(data)
+        // this.auth.set_projects(data)
         this.projects = data;
         console.log(data)
       }
     )
   }
 
-  toggleOther() {
-    this.isOtherOpened = !this.isOtherOpened;
-  }
-
   ngAfterViewInit(): void {
-    // Dummy data for charts
-    const data1 = {
-      labels: ['January', 'February', 'March', 'April', 'May'],
-      datasets: [{
-        label: 'Chart 1',
-        data: [10, 20, 30, 40, 50],
-        borderColor: 'rgba(75,192,192,1)',
-        borderWidth: 1
-      }]
-    };
 
-    const data2 = {
-      labels: ['June', 'July', 'August', 'September', 'October'],
-      datasets: [{
-        label: 'Chart 2',
-        data: [50, 40, 30, 20, 10],
-        borderColor: 'rgba(192,75,192,1)',
-        borderWidth: 1
-      }]
-    };
-
-    // Create charts
-    const chart1 = new Chart(this.chart1Canvas.nativeElement, {
-      type: 'line',
-      data: data1
-    });
-
-    const chart2 = new Chart(this.chart2Canvas.nativeElement, {
-      type: 'line',
-      data: data2
-    });
   }
 }

@@ -10,10 +10,12 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 
 
 const modules = [
   MatCardModule,
+  MatChipsModule,
   MatToolbarModule,
   MatButtonModule,
   MatFormFieldModule,
@@ -30,4 +32,4 @@ const modules = [
   imports: modules,
   exports: modules,
 })
-export class MaterialModule {}
+export class DashMaterialModule {}

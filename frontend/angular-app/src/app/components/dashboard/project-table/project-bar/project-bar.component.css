@@ -1,0 +1,27 @@
+.card {
+    display: inline-block;
+    min-width: 100%;
+    padding: 16px ;
+}
+
+.card-left {
+    min-width: 33%;
+    max-width: 33%;
+    float: left;
+    padding: 0;
+}
+
+.card-center {
+    min-width: 33%;
+    max-width: 33%;
+    display: inline-block;
+    align-content: center;
+}
+
+.card-right {
+    min-width: 33%;
+    max-width: 33%;
+    float: right;
+    text-align: right;
+    padding: 0;
+}
