@@ -1,0 +1,43 @@
+<mat-sidenav-container autosize class="sidenav-container">
+    <mat-sidenav 
+    #sidenav 
+    fixedInViewport="true" 
+    fixedBottomGap="5" 
+    mode="side" opened 
+    class="sidenav1"
+    (mouseenter)="toggleSidenav()"
+    (mouseleave)="toggleSidenav()"
+    >
+         <section [class.sidenav]="isExpanded">
+             
+             <mat-list class="nav" *ngFor="let route of routeLinks">
+                 <a
+                mat-list-item
+                class="hover"
+                (click)="redirect_page(route.link)"
+                >
+                    <mat-icon
+                    mat-list-icon
+                    [matTooltip]="!isExpanded ? route.name: null"
+                    matTooltipPosition="right"
+                    >
+                    {{route.icon}}
+                    </mat-icon>
+                    <p matLine *ngIf="isExpanded">{{route.name}}</p>
+                </a>
+            </mat-list>
+            <!-- <mat-list class="toggle">
+                <mat-icon mat-list-item (click)="toggleSidenav()">
+                    {{ isExpanded ? "keyboard_backspace": "dehaze" }}
+                </mat-icon>
+            </mat-list> -->
+         </section>
+    </mat-sidenav>
+
+    <mat-sidenav-content [style.margin-left.px]="!isExpanded? 60:210">
+        <div class="content-container">
+            <ng-content></ng-content>
+            <!-- <router-outlet></router-outlet> -->
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

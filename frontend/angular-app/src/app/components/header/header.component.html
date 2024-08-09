@@ -47,14 +47,3 @@
         <button mat-menu-item (click)="menuClick('logout')">Log Out</button>
     </mat-menu>
 </mat-toolbar>
-<mat-sidenav mode="side" [(opened)]="isProjectWindowOpened" position="end">
-    <div class="project">
-        <form #form="ngForm" (ngSubmit)="createProject(form)" id="proj-form">
-            <input matInput type="text" name="name" placeholder="Name" ngModel>
-            <mat-label for="desc">Description: </mat-label>
-            <textarea matInput type="text" name="description" id="desc" ngModel></textarea>
-            <button type="submit" mat-button>Create</button>
-            <button type="button" (click)="toggleProjectWindow()" mat-button>Cancel</button>
-        </form>
-    </div>
-</mat-sidenav>

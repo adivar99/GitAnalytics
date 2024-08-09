@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +26,7 @@ const modules = [
   MatGridListModule,
   MatListModule,
   MatTableModule,
+  MatTooltipModule
   // MatGridTile
 ];
 

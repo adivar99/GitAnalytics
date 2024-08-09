@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { UtilitiesService } from '../services/utilities.service';
-import { AuthService } from '../services/auth.service';
-import { HttpService } from '../services/http.service';
-import { User } from '../shared/user.model';
-import { PermissionService } from '../services/permission.service';
 import { NgForm } from '@angular/forms';
+
+import { User } from '../../shared/user.model';
+import { AuthService } from '../../services/auth.service';
+import { HttpService } from '../../services/http.service';
+import { UtilitiesService } from '../../services/utilities.service';
+import { PermissionService } from '../../services/permission.service';
 
 
 @Component({

@@ -8,11 +8,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
-import { HeaderComponent } from './header/header.component';
 import { AuthService } from './services/auth.service';
+import { AppRoutingModule } from './app-routing.module';
 
 
+import { HeaderComponent } from './components/header/header.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { LandingComponent } from './components/landing/landing.component';
 
