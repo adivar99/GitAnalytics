@@ -13,6 +13,7 @@ export class ProjectTableComponent{
         {id: 2, name: "FortiDAST", description: "Product to scan your dynamic website for vulns", users: 8, rating: 2.8, access: "user", lastScanned: new Date()},
         {id: 3, name: "FortiAIOps", description: "Product that leverages AI to evaluate your attack surfaces", users: 6, rating: 3.5, access: "user", lastScanned: new Date()},
       ];
+      searchValue='';
 
     constructor(
         private utils: UtilitiesService

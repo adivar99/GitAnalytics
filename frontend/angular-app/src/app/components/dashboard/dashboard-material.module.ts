@@ -12,6 +12,7 @@ import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatInputModule } from '@angular/material/input';
 
 
 const modules = [
@@ -26,7 +27,8 @@ const modules = [
   MatGridListModule,
   MatListModule,
   MatTableModule,
-  MatTooltipModule
+  MatTooltipModule,
+  MatInputModule,
   // MatGridTile
 ];
 

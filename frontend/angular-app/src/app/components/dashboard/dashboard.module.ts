@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { DashboardComponent } from './dashboard.component';
 import { DashBoardRoutingModule } from './dashboard-routing.module';
@@ -7,6 +8,7 @@ import { ProjectBarComponent } from './project-table/project-bar/project-bar.com
 import { ProjectTableComponent } from './project-table/project-table.component';
 import { DashMaterialModule } from './dashboard-material.module'
 import { UserManagementComponent } from './user-management/user-management.component';
+// import { FilterPipe } from './pipes/filter.pipe';
 
 @NgModule({
     declarations: [
@@ -18,7 +20,9 @@ import { UserManagementComponent } from './user-management/user-management.compo
     imports: [
         CommonModule,
         DashBoardRoutingModule,
-        DashMaterialModule
+        DashMaterialModule,
+        FormsModule,
+        // Ng2SearchPipeModule,
     ]
 })
 export class DashboardModule{}
