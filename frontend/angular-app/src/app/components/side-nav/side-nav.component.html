@@ -1,9 +1,10 @@
 <mat-sidenav-container autosize class="sidenav-container">
     <mat-sidenav 
     #sidenav 
+    opened="{{isLoggedIn}}"
     fixedInViewport="true" 
-    fixedBottomGap="5" 
-    mode="side" opened 
+    fixedBottomGap="5"
+    mode="side" 
     class="sidenav1"
     (mouseenter)="toggleSidenav()"
     (mouseleave)="toggleSidenav()"
@@ -13,7 +14,7 @@
                  <a
                 mat-list-item
                 class="hover"
-                (click)="onPageRedirect(route.link)"
+                [routerLink]="route.link"
                 >
                     <mat-icon
                     mat-list-icon

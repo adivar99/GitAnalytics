@@ -1,5 +1,5 @@
 <h1>My Projects</h1>
 <br>
 <div class="project-list">
-    <app-project-bar *ngFor="let proj of projects" [project]="proj"></app-project-bar>
+    <app-project-bar *ngFor="let proj of projects" [project]="proj" routerLink="/dashboard/{{proj.id}}"></app-project-bar>
 </div>
