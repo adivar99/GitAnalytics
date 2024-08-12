@@ -8,7 +8,6 @@ import { ProjectBarComponent } from './project-table/project-bar/project-bar.com
 import { ProjectTableComponent } from './project-table/project-table.component';
 import { DashMaterialModule } from './dashboard-material.module'
 import { UserManagementComponent } from './user-management/user-management.component';
-// import { FilterPipe } from './pipes/filter.pipe';
 
 @NgModule({
     declarations: [
@@ -22,7 +21,6 @@ import { UserManagementComponent } from './user-management/user-management.compo
         DashBoardRoutingModule,
         DashMaterialModule,
         FormsModule,
-        // Ng2SearchPipeModule,
     ]
 })
 export class DashboardModule{}

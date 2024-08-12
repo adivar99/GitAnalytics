@@ -3,16 +3,30 @@
 <div class="search-create-div">
     <mat-form-field class="search-form" *ngIf="projects.length > 0">
         <mat-label>Search Projects</mat-label>
-        <input matInput type="text" [(ngModel)]="searchValue" class="search-bar">
-            <button matSuffix mat-icon-button aria-label="Clear" (click)="searchValue=''" *ngIf="searchValue">
-                <mat-icon>close</mat-icon>
-            </button>
+        <!-- formControlName="searchFilter" -->
+        <input
+        matInput 
+        type="text" 
+        class="search-bar" 
+        [(ngModel)]="searchValue" 
+        (keyup)="filterProjects($event)"
+        (keydown)="filterProjects($event)"
+        >
+        <button 
+        matSuffix 
+        mat-icon-button 
+        aria-label="Clear" 
+        (click)="searchValue='';filterProjects($event)" 
+        *ngIf="searchValue"
+        >
+            <mat-icon>close</mat-icon>
+        </button>
     </mat-form-field>
     <button mat-raised-button class="create-project-button">Create Project <mat-icon>library_add</mat-icon></button>
 </div>
 <div class="project-list" *ngIf="projects.length > 0">
     <app-project-bar 
-    *ngFor="let proj of projects" 
+    *ngFor="let proj of showProjects" 
     [project]="proj" 
     routerLink="/dashboard/{{proj.id}}"
     ></app-project-bar>
