@@ -9,12 +9,11 @@
     (mouseleave)="toggleSidenav()"
     >
          <section [class.sidenav]="isExpanded">
-             
              <mat-list class="nav" *ngFor="let route of routeLinks">
                  <a
                 mat-list-item
                 class="hover"
-                (click)="redirect_page(route.link)"
+                (click)="onPageRedirect(route.link)"
                 >
                     <mat-icon
                     mat-list-icon

@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { UtilitiesService } from 'src/app/services/utilities.service';
 
 @Component({
@@ -9,6 +9,8 @@ import { UtilitiesService } from 'src/app/services/utilities.service';
 export class SideNavComponent{
     isExpanded: boolean = false;
     toggleMenu = new EventEmitter();
+
+    @Output() pageChanged = new EventEmitter<string>();
 
     constructor(
         private utils: UtilitiesService
@@ -22,8 +24,8 @@ export class SideNavComponent{
     toggleSidenav() {
         this.isExpanded = !this.isExpanded
     }
-    
-    redirect_page(page: string) {
-        this.utils.redirect_page_to(page)
+
+    onPageRedirect(page: string) {
+        this.pageChanged.emit(page)
     }
 }
