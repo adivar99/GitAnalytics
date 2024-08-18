@@ -2,7 +2,7 @@
 <mat-card appearance="outlined" class="card">
     <mat-card-header *ngIf="project.description!=''" class="card-left">
         <mat-card-title>
-            {{project.name}}
+            {{project.title}}
             <mat-chip>{{project.access}}</mat-chip>
         </mat-card-title>
         <mat-card-subtitle>{{project.description}}</mat-card-subtitle>
@@ -10,7 +10,7 @@
     </mat-card-header>
     <mat-card-header *ngIf="project.description==''" class="card-center nodesc">
         <mat-card-title>
-            {{project.name}}
+            {{project.title}}
             <mat-chip>{{project.access}}</mat-chip>
         </mat-card-title>
     </mat-card-header>
@@ -24,7 +24,8 @@
         </span>
     </mat-card-content>
     <mat-card-content class="card-right">
-        <span>Updated on {{project.lastScanned.toDateString()}}</span>
+        <span *ngIf="project.lastScanned != null">Updated on {{project.lastScanned.toDateString()}}</span>
+        <span *ngIf="project.lastScanned == null">Not yet Scanned</span>
     </mat-card-content>
     
 </mat-card>

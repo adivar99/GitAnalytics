@@ -1,10 +1,10 @@
 from enum import Enum
 
 
-class ProjectAccess(int, Enum):
-    MANAGER = 1
-    READ_WRITE = 2
-    GUEST = 3
+class ProjectAccess(str, Enum):
+    MANAGER = "Manager"
+    READ_WRITE = "Read/Write"
+    GUEST = "Guest"
 
 
 class UserType(str, Enum):

@@ -38,7 +38,7 @@ export class HeaderComponent implements OnInit {
     this.auth.currentUser.subscribe(
       (user: User) => {
         this.current_user = user;
-        this.auth.refresh_projects()
+        // this.auth.refresh_projects()
       }
     )
     this.auth.LoggedIn.subscribe(
@@ -46,17 +46,17 @@ export class HeaderComponent implements OnInit {
         this.isLoggedIn = login
       }
     )
-    this.auth.currentProject.subscribe((proj) => {
-      console.log("Current project is: ")
-      console.log(proj)
-      this.current_proj = proj
-    })
-    this.auth.refresh_projects()
-    let projects = this.auth.get_projects()
-    console.log("Getting projects: ")
-    console.log(projects)
-    this.project_menu = projects
-    this.current_proj = projects[0]
+    // this.auth.currentProject.subscribe((proj) => {
+    //   console.log("Current project is: ")
+    //   console.log(proj)
+    //   this.current_proj = proj
+    // })
+    // this.auth.refresh_projects()
+    // let projects = this.auth.get_projects()
+    // console.log("Getting projects: ")
+    // console.log(projects)
+    // this.project_menu = projects
+    // this.current_proj = projects[0]
   }
 
   loginButton() {

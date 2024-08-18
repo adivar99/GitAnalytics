@@ -3,7 +3,6 @@
 <div class="search-create-div">
     <mat-form-field class="search-form" *ngIf="projects.length > 0">
         <mat-label>Search Projects</mat-label>
-        <!-- formControlName="searchFilter" -->
         <input
         matInput 
         type="text" 
@@ -22,7 +21,7 @@
             <mat-icon>close</mat-icon>
         </button>
     </mat-form-field>
-    <button mat-raised-button class="create-project-button">Create Project <mat-icon>library_add</mat-icon></button>
+    <button mat-raised-button class="create-project-button" (click)="openCreateProjectForm()">Create Project <mat-icon>library_add</mat-icon></button>
 </div>
 <div class="project-list" *ngIf="projects.length > 0">
     <app-project-bar 
@@ -34,4 +33,23 @@
 <div class="project-nolist" *ngIf="projects.length == 0">
     <img src="assets/images/magnifying-glass-clipart.png" class="no-project-img">
     <h2 style="margin-top: 5px;"> No Projects Found! </h2>
+</div>
+
+<!-- Slide-out form -->
+<div class="slide-out-form" [class.open]="isCreateFormOpen">
+    <h2>Create New Project</h2>
+    <form (ngSubmit)="onSubmit()">
+        <mat-form-field>
+            <mat-label>Project Title</mat-label>
+            <input matInput [(ngModel)]="newProject.title" name="title" required>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Description</mat-label>
+            <textarea matInput [(ngModel)]="newProject.description" name="description"></textarea>
+        </mat-form-field>
+        <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Create</button>
+            <button mat-button type="button" (click)="closeCreateProjectForm()">Cancel</button>
+        </div>
+    </form>
 </div>

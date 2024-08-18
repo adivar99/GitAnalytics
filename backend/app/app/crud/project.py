@@ -6,6 +6,7 @@ from app.models.enums import ProjectAccess
 from app.models import Project as model, ProjectCreate as model_create, ProjectUpdate as model_update
 from app.db_models.project import Project as db_model
 from app.db_models.uproj import UProj
+from app.utils.utils import get_uuid
 
 class CRUD_Project():
     def get_by_id(self, db_session: Session, id: int) -> model:
@@ -51,6 +52,8 @@ class CRUD_Project():
         """
         Create project instance in db
         """
+        obj_in.uuid = get_uuid()
+        obj_in.rating = 0
         db_obj = db_model(**obj_in.dict(exclude_unset=True))
         db_session.add(db_obj)
         db_session.commit()

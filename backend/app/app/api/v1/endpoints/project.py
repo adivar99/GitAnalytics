@@ -15,16 +15,26 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/me", response_model=List[Project])
+@router.get("/me", response_model=List[models.ProjectResponse])
 def get_my_projects(
     db_session: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
-    proj = crud.crud_project.get_by_user(db_session, current_user.id)
-    print(proj)
-    return proj
+    projs = crud.crud_project.get_by_user(db_session, current_user.id)
+    proj_out = [
+        models.ProjectResponse(
+            id=proj_in.id,
+            title=proj_in.title,
+            description=proj_in.description,
+            users=len(crud.crud_uproj.get_by_proj(db_session, proj_in.id)),
+            rating=proj_in.rating,
+            access=crud.crud_uproj.get_by_user_n_proj(db_session, user_id=current_user.id, proj_id=proj_in.id).access,
+            lastScanned=proj_in.lastScanned
+        ) for proj_in in projs
+    ]
+    return proj_out
 
-@router.post("/", response_model=Project)
+@router.post("", response_model=Project)
 def create_project(
     proj_in: models.ProjectCreate,
     db_session: Session = Depends(deps.get_db),
