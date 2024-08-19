@@ -14,7 +14,7 @@ import { UserManagementComponent } from './user-management/user-management.compo
         DashboardComponent,
         ProjectBarComponent,
         ProjectTableComponent,
-        UserManagementComponent
+        UserManagementComponent,
     ],
     imports: [
         CommonModule,

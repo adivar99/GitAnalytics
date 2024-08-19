@@ -21,13 +21,20 @@
             <mat-icon>close</mat-icon>
         </button>
     </mat-form-field>
-    <button mat-raised-button class="create-project-button" (click)="openCreateProjectForm()">Create Project <mat-icon>library_add</mat-icon></button>
+    <button 
+    mat-raised-button 
+    class="create-project-button" 
+    (click)="openCreateProjectForm()"
+    >
+        Create Project <mat-icon>library_add</mat-icon>
+    </button>
 </div>
+<!-- routerLink="/dashboard/{{proj.id}}" -->
 <div class="project-list" *ngIf="projects.length > 0">
     <app-project-bar 
     *ngFor="let proj of showProjects" 
     [project]="proj" 
-    routerLink="/dashboard/{{proj.id}}"
+    (click)="redirect_project(proj)"
     ></app-project-bar>
 </div>
 <div class="project-nolist" *ngIf="projects.length == 0">

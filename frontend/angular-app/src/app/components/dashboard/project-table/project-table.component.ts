@@ -39,8 +39,9 @@ export class ProjectTableComponent implements OnInit {
         });
     }
 
-    redirect_project(project: string) {
-        this.utils.redirect_page_to('project/' + project);
+    redirect_project(project) {
+        this.auth.set_project(project)
+        this.utils.redirect_page_to('dashboard/' + project.id);
     }
 
     filterProjects(e: Event) {

@@ -11,7 +11,7 @@ export class AuthService {
   ) { }
   user: User | undefined;
   projects = []
-  currentProject = new EventEmitter<any>();
+  currentProject;
   currentUser = new EventEmitter<User>();
   LoggedIn = new EventEmitter<boolean>();
 
@@ -66,7 +66,11 @@ export class AuthService {
   }
 
   set_project(proj) {
-    this.currentProject.emit(proj)
+    this.currentProject = proj;
+  }
+
+  get_project() {
+    return this.currentProject;
   }
 
 }
