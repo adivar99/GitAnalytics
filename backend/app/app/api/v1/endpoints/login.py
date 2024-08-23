@@ -2,7 +2,7 @@ import logging
 from typing import Any
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, File
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -86,3 +86,12 @@ def login_logout(current_user: models.User = Depends(deps.get_current_active_use
     response = JSONResponse(content={},status_code=200)
     response.delete_cookie("Authorization")
     return response
+
+
+@router.post("/register", response_model=models.Token)
+def register_user(
+    user_in: models.RegisterForm,
+    license_file: File,
+    db: Session = Depends(deps.get_db)
+):
+    pass

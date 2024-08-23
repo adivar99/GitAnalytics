@@ -17,6 +17,8 @@ export class LoginPageComponent {
   ) {}
 
   login = {username: '', password: ''}
+  register = {username: '', name: '', email: '', password: ''}
+  lic_file;
 
   @ViewChild('mainContainer', {'static': false}) containerRef: ElementRef;
 
@@ -41,6 +43,30 @@ export class LoginPageComponent {
     formData.append("grant_type", '')
     formData.append("scope", '')
     this.httpService.postData('/login/access-token', formData).subscribe(
+      (data) => {
+        this.authService.set_logged_in(true);
+        this.authService.get_current_user()
+        this.utils.redirect_page_to('dashboard')
+    }, (error) => {
+      // this.notifyService.error(error.error.detail);
+      console.log(error)
+    })
+  }
+
+  onLicChange(event) {
+    console.log(event.target.files(0))
+    this.lic_file = event.target.files(0)
+  }
+
+  doRegister() {
+    console.log("Is form valid:", this.register)
+    let formData = new FormData();
+    formData.append("name", this.register.name)
+    formData.append("username", this.register.username)
+    formData.append("password", this.register.password)
+    formData.append("email", this.register.email)
+    formData.append("lic", this.lic_file)
+    this.httpService.postData('/login/register', formData).subscribe(
       (data) => {
         this.authService.set_logged_in(true);
         this.authService.get_current_user()

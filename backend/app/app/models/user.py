@@ -39,3 +39,9 @@ class UserUI(BaseModel):
     is_admin: bool = Field(False, title="Is user admin of company", example=False)
     user_type: UserType = Field(UserType.USER, title="Type of user", example=UserType.USER)
     company_id: int
+
+class RegisterForm(BaseModel):
+    name: str
+    username: str
+    email: EmailStr
+    password: str

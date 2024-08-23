@@ -1,12 +1,15 @@
 <body>
   <div class="container" id="container" #mainContainer>
     <div class="form-container sign-up-container">
-      <form action="#">
+      <form (ngSubmit)="doRegister()">
         <h1>Create An Account</h1>
         <span>use your email for registration</span>
-        <input type="text" name="name" placeholder="Name"/>
-        <input type="email" name="name" placeholder="Email"/>
-        <input type="password" name="password" placeholder="Password"/>
+        <!-- Create multiStep form https://netbasal.com/create-a-multi-step-form-in-angular-44cdc5b75cdc -->
+        <input type="text" name="name" placeholder="Name" [(ngModel)]="register.name" required/>
+        <input type="text" name="username" placeholder="Username" [(ngModel)]="register.username" required/>
+        <input type="email" name="email" placeholder="Email" [(ngModel)]="register.email" required/>
+        <input type="password" name="password" placeholder="Password" [(ngModel)]="register.password" required/>
+        <input type="file" name="lic_file" placeholder="License" (change)="onLicChange($event)" required/>
         <button type="submit">Sign Up</button>
       </form>
     </div>
