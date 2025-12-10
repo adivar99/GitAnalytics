@@ -88,10 +88,10 @@ def login_logout(current_user: models.User = Depends(deps.get_current_active_use
     return response
 
 
-@router.post("/register", response_model=models.Token)
-def register_user(
-    user_in: models.RegisterForm,
-    license_file: File,
-    db: Session = Depends(deps.get_db)
-):
-    pass
+# @router.post("/register")
+# def register_user(
+#     user_in: models.RegisterForm,
+#     license_file: File,
+#     db: Session = Depends(deps.get_db)
+# ):
+#     pass

@@ -7,11 +7,15 @@ import { ChartOptions, ChartType, ChartDataset } from 'chart.js';
     styleUrls: ['./commit-history-chart.component.scss']
 })
 export class CommitHistoryChart {
-    @Input() data: ChartDataset[]
+    @Input() data
 
     public chartOptions: ChartOptions = {
         responsive: true,
     }
     public chartLabels
     public chartType: ChartType = "line"
+
+    ngOnInit() {
+        console.log("COMMIT HISTORY CHART DATA", this.data);
+    }
  }

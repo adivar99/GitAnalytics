@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Chart, registerables } from 'chart.js';
+// import { Chart, registerables } from 'chart.js';
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 
 import { AuthService } from 'src/app/services/auth.service';
