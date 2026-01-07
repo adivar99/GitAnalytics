@@ -1,0 +1,155 @@
+// ===================================
+// Gitanalytics Database Schema
+// ===================================
+
+Project Gitanalytics {
+  database_type: 'PostgreSQL'
+  Note: 'Schema for Git Analytics Dashboard handling Multi-tenant RBAC and Git Metrics'
+}
+
+// -----------------------------------
+// User Management & Hierarchy
+// -----------------------------------
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  email varchar [unique, not null]
+  password_hash varchar [not null]
+  full_name varchar
+  company_id uuid [note: 'Users must belong to a company']
+  created_at timestamp [default: `now()`]
+  
+  Note: 'All users (Admins, Managers, Devs) live here'
+}
+
+Table companies {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  license_key varchar [unique, not null]
+  admin_user_id uuid [unique, note: 'Strict Rule: Only 1 Admin per Company']
+  max_projects int [default: 5]
+  created_at timestamp [default: `now()`]
+  
+  Note: 'Created upon signup with a valid license'
+}
+
+Table projects {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  company_id uuid [not null]
+  manager_user_id uuid [not null, note: 'Strict Rule: Only 1 Manager per Project']
+  description text
+  repo_url varchar
+  created_at timestamp [default: `now()`]
+
+  Note: 'Admin creates project and assigns manager_user_id'
+}
+
+Enum member_role {
+  DEVELOPER
+  GUEST
+}
+
+Table project_members {
+  id uuid [pk, default: `gen_random_uuid()`]
+  project_id uuid [not null]
+  user_id uuid [not null]
+  role member_role [not null]
+  joined_at timestamp [default: `now()`]
+
+  Note: 'Pivot table for Developers and Guests. Managers are linked directly in the projects table.'
+}
+
+// -----------------------------------
+// Git Data & Analytics
+// -----------------------------------
+
+Table git_commits {
+  hash varchar [pk]
+  project_id uuid [not null]
+  author_name varchar
+  author_email varchar
+  message text
+  branch_name varchar
+  committed_at timestamp
+  created_at timestamp [default: `now()`, note: 'When this was ingested by our system']
+}
+
+Enum branch_health_status {
+  HOT    // High frequency, recent commits
+  STABLE // Low frequency, recent commits
+  STALE  // No recent commits
+}
+
+Table git_branches {
+  id uuid [pk, default: `gen_random_uuid()`]
+  project_id uuid
+  name varchar
+  last_commit_hash varchar
+  health_status branch_health_status
+  last_activity_at timestamp
+}
+
+Table file_extension_stats {
+  id uuid [pk, default: `gen_random_uuid()`]
+  commit_hash varchar
+  extension varchar [note: 'e.g., .go, .js, .py']
+  count int
+  
+  Note: 'Snapshots of file types per commit to track tech stack evolution'
+}
+
+Table churn_metrics {
+  id uuid [pk, default: `gen_random_uuid()`]
+  commit_hash varchar
+  project_id uuid
+  perpetrator_email varchar [note: 'User who overwrote the code']
+  victim_email varchar [note: 'User whose code was overwritten']
+  lines_overwritten int
+  
+  Note: 'Calculated by git blame analysis'
+}
+
+// -----------------------------------
+// Relationships
+// -----------------------------------
+
+// Company Hierarchy
+Ref: users.company_id > companies.id // Users belong to a company
+Ref: companies.admin_user_id - users.id // One-to-One: Company has 1 Admin
+
+// Project Hierarchy
+Ref: projects.company_id > companies.id
+Ref: projects.manager_user_id > users.id // Project has 1 Manager
+
+// Project Members (RBAC)
+Ref: project_members.project_id > projects.id
+Ref: project_members.user_id > users.id
+
+// Git Data Connections
+Ref: git_commits.project_id > projects.id
+Ref: git_branches.project_id > projects.id
+Ref: git_commits.hash - git_branches.last_commit_hash
+
+// Metrics Connections
+Ref: file_extension_stats.commit_hash > git_commits.hash
+Ref: churn_metrics.commit_hash > git_commits.hash
+Ref: churn_metrics.project_id > projects.id
+
+// -----------------------------------
+// Visual Grouping
+// -----------------------------------
+
+TableGroup IAM {
+  users
+  companies
+  projects
+  project_members
+}
+
+TableGroup Analytics {
+  git_commits
+  git_branches
+  file_extension_stats
+  churn_metrics
+}

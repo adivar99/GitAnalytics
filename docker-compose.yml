@@ -1,48 +1,108 @@
-version: "3"
 services:
-  backend:
-    image: git-analytics/backend
-    env_file:
-      - .env
-    build:
-      context: ./backend
-      dockerfile: backend.dockerfile
+  postgres:
+    container_name: gitanalytics_postgres
+    image: postgres:15
+    restart: always
+    volumes:
+      - gitanalytics_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: pg_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pg_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  graphql-engine:
+    container_name: gitanalytics_hasura
+    image: hasura/graphql-engine:v2.46.0
     ports:
       - "8080:8080"
-    volumes:
-      - ./backend/app:/app
-  frontend:
-    image: git-analytics/frontend
-    env_file:
-      - .env
-    build:
-      context: ./frontend
-      dockerfile: frontend.dockerfile
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./frontend/angular-app:/src/angular-app
-      - /src/angular-app/node_modules
-  proxy:
-    image: git-analytics/proxy:latest
-    depends_on:
-     - frontend
-     - backend
-    ports:
-      - "80:80"
-  db:
-    image: git-analytics/postgres:latest
-    command: postgres -c 'max_connections=500'
-    volumes:
-        - app-db-data:/var/lib/postgresql/data/pgdata:z
-    env_file:
-        - .env
+    restart: always
     environment:
-        - PGDATA=/var/lib/postgresql/data/pgdata
+      ## postgres database to store Hasura metadata
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/pg_db
+      ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
+      PG_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/pg_db
+      ## enable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      ## uncomment next line to run console offline (i.e load console assets from server instead of CDN)
+      # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+      ## uncomment next line to set an admin secret
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "public"
+      HASURA_GRAPHQL_METADATA_DEFAULTS: '{"backend_configs":{"dataconnector":{"athena":{"uri":"http://data-connector-agent:8082/api/v1/athena"},"mariadb":{"uri":"http://data-connector-agent:8082/api/v1/mariadb"},"mysql8":{"uri":"http://data-connector-agent:8082/api/v1/mysql"},"oracle":{"uri":"http://data-connector-agent:8082/api/v1/oracle"},"snowflake":{"uri":"http://data-connector-agent:8082/api/v1/snowflake"}}}}'
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key":"your-super-secret-jwt-key-change-this-in-production"}'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      data-connector-agent:
+        condition: service_healthy
+  data-connector-agent:
+    container_name: gitanalytics_data_connector
+    image: hasura/graphql-data-connector:v2.46.0
+    restart: always
+    ports:
+      - 8082:8082
+    environment:
+      QUARKUS_HTTP_PORT: 8082
+      QUARKUS_LOG_LEVEL: ERROR # FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+      ## https://quarkus.io/guides/opentelemetry#configuration-reference
+      QUARKUS_OPENTELEMETRY_ENABLED: "false"
+      ## QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/api/v1/athena/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+  minio:
+    container_name: gitanalytics_minio
+    image: minio/minio:latest
+    restart: always
+    ports:
+      - "9000:9000" # API port
+      - "9001:9001" # Console port
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - gitanalytics_minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+  go-server:
+    container_name: gitanalytics_go_server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/pg_db
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      HASURA_ENDPOINT: http://graphql-engine:8080/v1/graphql
+      HASURA_ADMIN_SECRET: myadminsecretkey
+      PORT: "8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
-    app-db-data:
-
-networks:
-  git-analytics_default:
-    external: true
+  gitanalytics_db_data:
+  gitanalytics_minio_data:
