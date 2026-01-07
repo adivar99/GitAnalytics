@@ -102,6 +102,17 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+  frontend:
+    container_name: gitanalytics_frontend
+    build:
+      context: ./gitanalytics-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      go-server:
+        condition: service_healthy
 
 volumes:
   gitanalytics_db_data:
