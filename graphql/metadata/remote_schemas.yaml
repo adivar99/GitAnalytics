@@ -1,0 +1,6 @@
+- name: AuthServer
+  definition:
+    url: http://go-server:8081/query
+    timeout_seconds: 60
+    customization: {}
+  comment: Help users get authorized

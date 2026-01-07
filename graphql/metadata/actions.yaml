@@ -1,0 +1,20 @@
+actions: []
+custom_types:
+  enums:
+    - name: ProjectMemberRole
+      values:
+        - description: null
+          is_deprecated: null
+          value: DEVELOPER
+        - description: null
+          is_deprecated: null
+          value: GUEST
+  input_objects:
+    - name: CreateProjectInput
+    - name: AssignMemberInput
+  objects:
+    - name: Project
+    - name: ProjectMember
+    - name: UserResponse
+    - name: CompanyResponse
+  scalars: []

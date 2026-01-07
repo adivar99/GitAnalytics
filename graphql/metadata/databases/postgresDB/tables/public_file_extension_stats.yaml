@@ -1,0 +1,119 @@
+table:
+  name: file_extension_stats
+  schema: public
+object_relationships:
+  - name: git_commit
+    using:
+      foreign_key_constraint_on: commit_hash
+insert_permissions:
+  - role: administrator
+    permission:
+      check:
+        git_commit:
+          project:
+            company_id:
+              _eq: X-Hasura-Company-Id
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+    comment: ""
+  - role: manager
+    permission:
+      check:
+        git_commit:
+          project:
+            manager_user_id:
+              _eq: X-Hasura-User-Id
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+    comment: ""
+select_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+      filter:
+        git_commit:
+          project:
+            company_id:
+              _eq: X-Hasura-Company-Id
+    comment: ""
+  - role: developer
+    permission:
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+      filter:
+        git_commit:
+          project:
+            _or:
+              - manager_user_id:
+                  _eq: X-Hasura-User-Id
+              - project_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""
+  - role: guest
+    permission:
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+      filter:
+        git_commit:
+          project:
+            project_members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: GUEST
+    comment: ""
+  - role: manager
+    permission:
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+      filter:
+        git_commit:
+          project:
+            manager_user_id:
+              _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - commit_hash
+        - count
+        - id
+        - extension
+      filter:
+        git_commit:
+          project:
+            company_id:
+              _eq: X-Hasura-Company-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: administrator
+    permission:
+      filter:
+        git_commit:
+          project:
+            company_id:
+              _eq: X-Hasura-Company-Id
+    comment: ""

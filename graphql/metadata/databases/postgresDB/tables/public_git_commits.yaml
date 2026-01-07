@@ -1,0 +1,161 @@
+table:
+  name: git_commits
+  schema: public
+object_relationships:
+  - name: project
+    using:
+      foreign_key_constraint_on: project_id
+array_relationships:
+  - name: churn_metrics
+    using:
+      foreign_key_constraint_on:
+        column: commit_hash
+        table:
+          name: churn_metrics
+          schema: public
+  - name: file_extension_stats
+    using:
+      foreign_key_constraint_on:
+        column: commit_hash
+        table:
+          name: file_extension_stats
+          schema: public
+  - name: git_branches
+    using:
+      foreign_key_constraint_on:
+        column: last_commit_hash
+        table:
+          name: git_branches
+          schema: public
+insert_permissions:
+  - role: administrator
+    permission:
+      check:
+        project:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+    comment: ""
+  - role: manager
+    permission:
+      check:
+        project:
+          manager_user_id:
+            _eq: X-Hasura-User-Id
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+    comment: ""
+select_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+      filter:
+        project:
+          company_id:
+            _eq: X-Hasura-Company-Id
+    comment: ""
+  - role: developer
+    permission:
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+      filter:
+        project:
+          _or:
+            - manager_user_id:
+                _eq: X-Hasura-User-Id
+            - project_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+  - role: guest
+    permission:
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+      filter:
+        project:
+          project_members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _eq: GUEST
+    comment: ""
+  - role: manager
+    permission:
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+      filter:
+        project:
+          manager_user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - author_email
+        - author_name
+        - branch_name
+        - hash
+        - message
+        - committed_at
+        - project_id
+        - created_at
+      filter:
+        project:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: administrator
+    permission:
+      filter:
+        project:
+          company_id:
+            _eq: X-Hasura-Company-Id
+    comment: ""
