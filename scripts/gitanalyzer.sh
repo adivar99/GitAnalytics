@@ -158,8 +158,8 @@ backend_start() {
         # Note: metadata apply might show warnings about missing tables, which is expected
         echo -e "${GREEN}✓ Metadata applied (database registered)${NC}"
         
-        echo -e "${YELLOW}Step 2: Applying migrations (to create tables)...${NC}"
-        hasura migrate apply --endpoint http://localhost:8080 --admin-secret myadminsecretkey --database-name pg_db
+        # echo -e "${YELLOW}Step 2: Applying migrations (to create tables)...${NC}"
+        # hasura migrate apply --endpoint http://localhost:8080 --admin-secret myadminsecretkey --database-name pg_db
         
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✓ Migrations applied successfully!${NC}"
@@ -223,7 +223,7 @@ backend_stop() {
     fi
     
     echo -e "${YELLOW}Stopping Docker containers...${NC}"
-    docker compose down
+    docker compose down --remove-orphans
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Containers stopped successfully!${NC}"
@@ -335,13 +335,15 @@ case $1 in
     case $2 in
     "dev")
         echo "Starting project in dev mode with reloads"
-        docker-compose up -d
         backend_start
         ;;
     "prod")
         echo "TODO: Start the project in prod mode without reload and scalable"
         ;;
     esac
+    ;;
+"restart")
+    backend_restart
     ;;
 "logs")
     if [ $# == 1 ]; then
@@ -360,6 +362,5 @@ case $1 in
 "stop")
     echo "Stopping running containers"
     backend_stop
-    docker-compose down --remove-orphans
 esac
 

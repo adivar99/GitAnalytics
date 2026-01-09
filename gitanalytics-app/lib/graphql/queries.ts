@@ -156,7 +156,7 @@ export const GET_COMPANY = gql`
 
 // Mutation to create a project (via Hasura Action)
 export const CREATE_PROJECT = gql`
-  mutation CreateProject($name: String!, $managerUserId: uuid!) {
+  mutation CreateProject($name: String!, $managerUserId: String!) {
     createProject(input: { name: $name, managerUserId: $managerUserId }) {
       id
       name
@@ -197,18 +197,30 @@ export const GET_COMPANY_USERS = gql`
   }
 `;
 
-// Mutation to add a new user
+// Query to get a user by email in a specific company
+export const GET_USER_BY_EMAIL = gql`
+  query GetUserByEmail($email: String!, $companyId: uuid!) {
+    users(where: { email: { _eq: $email }, company_id: { _eq: $companyId } }) {
+      id
+      email
+      full_name
+    }
+  }
+`;
+
+// Mutation to add a new user (via backend action)
 export const ADD_USER = gql`
-  mutation AddUser($email: String!, $fullName: String!, $companyId: uuid!, $password: String!) {
-    insert_users_one(object: {
+  mutation AddUser($email: String!, $fullName: String, $companyId: String!, $password: String!) {
+    addUser(
       email: $email,
       full_name: $fullName,
       company_id: $companyId,
       password: $password
-    }) {
+    ) {
       id
       email
-      full_name
+      fullName
+      companyId
     }
   }
 `;

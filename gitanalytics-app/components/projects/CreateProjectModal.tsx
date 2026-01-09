@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { CREATE_PROJECT } from '@/lib/graphql/queries';
+import { useMutation, useLazyQuery } from '@apollo/client';
+import { CREATE_PROJECT, GET_USER_BY_EMAIL } from '@/lib/graphql/queries';
 import { useAuth } from '@/app/hooks/useAuth';
 
 interface CreateProjectModalProps {
@@ -12,10 +12,13 @@ interface CreateProjectModalProps {
 
 export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalProps) {
   const [name, setName] = useState('');
-  const [managerUserId, setManagerUserId] = useState('');
+  const [managerEmail, setManagerEmail] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
+  const [validatingEmail, setValidatingEmail] = useState(false);
   const { user } = useAuth();
+
+  const [getUserByEmail] = useLazyQuery(GET_USER_BY_EMAIL);
 
   const [createProject, { loading }] = useMutation(CREATE_PROJECT, {
     onCompleted: () => {
@@ -30,19 +33,50 @@ export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalPro
     e.preventDefault();
     setError('');
 
-    if (!name || !managerUserId) {
-      setError('Name and manager are required');
+    if (!name || !managerEmail) {
+      setError('Name and manager email are required');
+      return;
+    }
+
+    if (!user?.company_id) {
+      setError('User company information not found');
       return;
     }
 
     try {
+      // Validate email and get user ID
+      setValidatingEmail(true);
+      const { data, error: queryError } = await getUserByEmail({
+        variables: {
+          email: managerEmail.trim(),
+          companyId: user.company_id,
+        },
+      });
+
+      setValidatingEmail(false);
+
+      if (queryError) {
+        setError('Failed to validate manager email');
+        return;
+      }
+
+      if (!data?.users || data.users.length === 0) {
+        setError('No user found with this email in your company');
+        return;
+      }
+
+      const managerUser = data.users[0];
+
+      // Create project with the manager's UUID
       await createProject({
         variables: {
           name,
-          managerUserId,
+          managerUserId: managerUser.id as string,
+          description: description || undefined,
         },
       });
     } catch (err) {
+      setValidatingEmail(false);
       // Error handled in onError
     }
   };
@@ -74,16 +108,19 @@ export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalPro
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Manager User ID
+              Manager Email
             </label>
             <input
-              type="text"
-              value={managerUserId}
-              onChange={(e) => setManagerUserId(e.target.value)}
+              type="email"
+              value={managerEmail}
+              onChange={(e) => setManagerEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter manager user UUID"
+              placeholder="manager@example.com"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Enter the email of a user in your company
+            </p>
           </div>
 
           <div>
@@ -108,10 +145,10 @@ export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalPro
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || validatingEmail}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
             >
-              {loading ? 'Creating...' : 'Create'}
+              {validatingEmail ? 'Validating...' : loading ? 'Creating...' : 'Create'}
             </button>
           </div>
         </form>
