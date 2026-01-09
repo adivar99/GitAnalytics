@@ -110,6 +110,14 @@ services:
     ports:
       - "3000:3000"
     restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: http://go-server:8081
+      NEXT_PUBLIC_HASURA_URL: http://localhost:8080/v1/graphql
+      NEXT_PUBLIC_HASURA_ADMIN_SECRET: myadminsecretkey
+    volumes:
+      - ./gitanalytics-app:/src/gitanalytics-app
+      - /src/gitanalytics-app/node_modules # to prevent overwriting node_modules
+      - /src/gitanalytics-app/.next # to prevent overwriting .next
     depends_on:
       go-server:
         condition: service_healthy
