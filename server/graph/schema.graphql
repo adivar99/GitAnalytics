@@ -71,6 +71,12 @@ type Mutation {
     password: String!,
     full_name: String
   ): SignupResponse!
+  addUser(
+    email: String!,
+    password: String!,
+    full_name: String,
+    company_id: String!
+  ): User!
 }
 
 type Query {

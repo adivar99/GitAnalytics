@@ -57,6 +57,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		AddUser       func(childComplexity int, email string, password string, fullName *string, companyID string) int
 		AssignMember  func(childComplexity int, input model.AssignMemberInput) int
 		CreateProject func(childComplexity int, input model.CreateProjectInput) int
 		Login         func(childComplexity int, email string, password string) int
@@ -104,6 +105,7 @@ type MutationResolver interface {
 	AssignMember(ctx context.Context, input model.AssignMemberInput) (*model.ProjectMember, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginResponse, error)
 	Signup(ctx context.Context, companyName string, licenseKey string, adminEmail string, password string, fullName *string) (*model.SignupResponse, error)
+	AddUser(ctx context.Context, email string, password string, fullName *string, companyID string) (*model.User, error)
 }
 type QueryResolver interface {
 	Health(ctx context.Context) (string, error)
@@ -154,6 +156,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.LoginResponse.User(childComplexity), true
 
+	case "Mutation.addUser":
+		if e.complexity.Mutation.AddUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addUser_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddUser(childComplexity, args["email"].(string), args["password"].(string), args["full_name"].(*string), args["company_id"].(string)), true
 	case "Mutation.assignMember":
 		if e.complexity.Mutation.AssignMember == nil {
 			break
@@ -504,6 +517,12 @@ type Mutation {
     password: String!,
     full_name: String
   ): SignupResponse!
+  addUser(
+    email: String!,
+    password: String!,
+    full_name: String,
+    company_id: String!
+  ): User!
 }
 
 type Query {
@@ -517,6 +536,32 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_addUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "email", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["email"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "password", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["password"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "full_name", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["full_name"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "company_id", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["company_id"] = arg3
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_assignMember_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -976,6 +1021,57 @@ func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, fi
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_signup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_addUser,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().AddUser(ctx, fc.Args["email"].(string), fc.Args["password"].(string), fc.Args["full_name"].(*string), fc.Args["company_id"].(string))
+		},
+		nil,
+		ec.marshalNUser2ᚖgitanalyticsᚋserverᚋgraphᚋmodelᚐUser,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "fullName":
+				return ec.fieldContext_User_fullName(ctx, field)
+			case "companyId":
+				return ec.fieldContext_User_companyId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3364,6 +3460,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "addUser":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addUser(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4132,6 +4235,10 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNUser2gitanalyticsᚋserverᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUser2ᚖgitanalyticsᚋserverᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

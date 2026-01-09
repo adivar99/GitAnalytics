@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_URL =  process.env.NEXT_PUBLIC_HASURA_URL || 'http://localhost:8080/v1/graphql';
 
 export interface ApiError {
   error: string;
@@ -18,8 +18,8 @@ export class ApiClient {
     variables: Record<string, any> = {}
   ): Promise<T> {
     const token = Cookies.get('auth_token');
-
-    const response = await fetch(`${this.baseUrl}/v1/graphql`, {
+    console.log(`Sending request to ${this.baseUrl} with token: ${token ? 'present' : 'absent'}`);
+    const response = await fetch(`${this.baseUrl}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

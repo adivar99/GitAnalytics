@@ -405,6 +405,72 @@ func (r *mutationResolver) Signup(ctx context.Context, companyName string, licen
 	}, nil
 }
 
+// AddUser is the resolver for the addUser field.
+func (r *mutationResolver) AddUser(ctx context.Context, email string, password string, fullName *string, companyID string) (*model.User, error) {
+	// 1. Check if email already exists
+	var checkEmail struct {
+		Users []struct {
+			ID string `json:"id"`
+		} `json:"users"`
+	}
+	err := r.HasuraClient.Request(`
+		query CheckEmail($email: String!) {
+			users(where: {email: {_eq: $email}}) { id }
+		}
+	`, map[string]interface{}{"email": email}, &checkEmail)
+	if err != nil {
+		return nil, err
+	}
+	if len(checkEmail.Users) > 0 {
+		return nil, errors.New("Email already registered")
+	}
+
+	// 2. Hash Password
+	passwordHash, err := auth.HashPassword(password)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	// 3. Create User
+	var createUser struct {
+		InsertUsersOne struct {
+			ID       string  `json:"id"`
+			Email    string  `json:"email"`
+			FullName *string `json:"full_name"`
+		} `json:"insert_users_one"`
+	}
+	createUserVars := map[string]interface{}{
+		"email":        email,
+		"passwordHash": passwordHash,
+		"companyId":    companyID,
+		"fullName":     fullName,
+	}
+	err = r.HasuraClient.Request(`
+		mutation CreateUser($email: String!, $passwordHash: String!, $companyId: uuid!, $fullName: String) {
+			insert_users_one(object: {
+				email: $email,
+				password_hash: $passwordHash,
+				company_id: $companyId,
+				full_name: $fullName
+			}) {
+				id
+				email
+				full_name
+			}
+		}
+	`, createUserVars, &createUser)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	return &model.User{
+		ID:        createUser.InsertUsersOne.ID,
+		Email:     createUser.InsertUsersOne.Email,
+		FullName:  createUser.InsertUsersOne.FullName,
+		CompanyID: companyID,
+	}, nil
+}
+
 // Health is the resolver for the health field.
 func (r *queryResolver) Health(ctx context.Context) (string, error) {
 	return "ok", nil
