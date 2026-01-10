@@ -27,7 +27,7 @@ export const GET_COMPANY_PROJECTS = gql`
       description
       repo_url
       manager_user_id
-      manager {
+      user {
         id
         email
         full_name
@@ -156,19 +156,20 @@ export const GET_COMPANY = gql`
 
 // Mutation to create a project (via Hasura Action)
 export const CREATE_PROJECT = gql`
-  mutation CreateProject($name: String!, $managerUserId: String!) {
-    createProject(input: { name: $name, managerUserId: $managerUserId }) {
+  mutation CreateProject($name: String!, $managerUserId: String!, $description: String) {
+    createProject(input: { name: $name, managerUserId: $managerUserId, description: $description }) {
       id
       name
       companyId
       managerUserId
+      description
     }
   }
 `;
 
 // Mutation to assign a member (via Hasura Action)
 export const ASSIGN_MEMBER = gql`
-  mutation AssignMember($projectId: uuid!, $userId: uuid!, $role: ProjectMemberRole!) {
+  mutation AssignMember($projectId: String!, $userId: String!, $role: ProjectMemberRole!) {
     assignMember(
       input: { projectId: $projectId, userId: $userId, role: $role }
     ) {

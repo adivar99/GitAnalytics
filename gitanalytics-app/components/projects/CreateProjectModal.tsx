@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useMutation, useLazyQuery } from '@apollo/client';
-import { CREATE_PROJECT, GET_USER_BY_EMAIL } from '@/lib/graphql/queries';
+import { CREATE_PROJECT, GET_USER_BY_EMAIL, ASSIGN_MEMBER } from '@/lib/graphql/queries';
 import { useAuth } from '@/app/hooks/useAuth';
 
 interface CreateProjectModalProps {
@@ -20,12 +20,18 @@ export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalPro
 
   const [getUserByEmail] = useLazyQuery(GET_USER_BY_EMAIL);
 
-  const [createProject, { loading }] = useMutation(CREATE_PROJECT, {
+  const [createProject, { loading: creatingProject }] = useMutation(CREATE_PROJECT, {
+    onError: (err) => {
+      setError(err.message);
+    },
+  });
+
+  const [assignMember, { loading: assigningMember }] = useMutation(ASSIGN_MEMBER, {
     onCompleted: () => {
       onSuccess();
     },
     onError: (err) => {
-      setError(err.message);
+      setError(`Project created but failed to assign manager: ${err.message}`);
     },
   });
 
@@ -68,11 +74,27 @@ export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalPro
       const managerUser = data.users[0];
 
       // Create project with the manager's UUID
-      await createProject({
+      const projectResult = await createProject({
         variables: {
           name,
           managerUserId: managerUser.id as string,
           description: description || undefined,
+        },
+      });
+
+      if (!projectResult.data?.createProject?.id) {
+        setError('Failed to create project');
+        return;
+      }
+
+      const projectId = projectResult.data.createProject.id;
+
+      // Assign the manager as a project member with DEVELOPER role
+      await assignMember({
+        variables: {
+          projectId: projectId,
+          userId: managerUser.id as string,
+          role: 'DEVELOPER',
         },
       });
     } catch (err) {
@@ -145,10 +167,16 @@ export function CreateProjectModal({ onClose, onSuccess }: CreateProjectModalPro
             </button>
             <button
               type="submit"
-              disabled={loading || validatingEmail}
+              disabled={creatingProject || assigningMember || validatingEmail}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
             >
-              {validatingEmail ? 'Validating...' : loading ? 'Creating...' : 'Create'}
+              {validatingEmail
+                ? 'Validating...'
+                : creatingProject
+                ? 'Creating Project...'
+                : assigningMember
+                ? 'Assigning Manager...'
+                : 'Create'}
             </button>
           </div>
         </form>
