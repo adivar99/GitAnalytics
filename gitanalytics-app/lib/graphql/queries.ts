@@ -181,6 +181,15 @@ export const ASSIGN_MEMBER = gql`
   }
 `;
 
+// Mutation to delete a project (via Hasura Action)
+export const DELETE_PROJECT = gql`
+  mutation DeleteProject($projectId: String!) {
+    deleteProject(input: { projectId: $projectId }) {
+      success
+      message
+    }
+  }
+`;
 
 // Query to get all users in the company
 export const GET_COMPANY_USERS = gql`

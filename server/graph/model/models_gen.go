@@ -27,6 +27,15 @@ type CreateProjectInput struct {
 	RepoURL       *string `json:"repoUrl,omitempty"`
 }
 
+type DeleteProjectInput struct {
+	ProjectID string `json:"projectId"`
+}
+
+type DeleteProjectResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type LoginResponse struct {
 	Token string `json:"token"`
 	User  *User  `json:"user"`

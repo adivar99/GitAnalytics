@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { DeleteProjectModal } from './DeleteProjectModal';
 
 interface Project {
   id: string;
@@ -18,9 +20,11 @@ interface Project {
 
 interface ProjectListProps {
   projects: Project[];
+  onProjectDeleted?: () => void;
 }
 
-export function ProjectList({ projects }: ProjectListProps) {
+export function ProjectList({ projects, onProjectDeleted }: ProjectListProps) {
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   if (projects.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-lg shadow">
@@ -71,17 +75,36 @@ export function ProjectList({ projects }: ProjectListProps) {
                 {new Date(project.created_at).toLocaleDateString()}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <Link
-                  href={`/dashboard/projects/${project.id}`}
-                  className="text-indigo-600 hover:text-indigo-900"
-                >
-                  View
-                </Link>
+                <div className="flex items-center space-x-3">
+                  <Link
+                    href={`/dashboard/projects/${project.id}`}
+                    className="text-indigo-600 hover:text-indigo-900"
+                  >
+                    View
+                  </Link>
+                  <button
+                    onClick={() => setProjectToDelete(project)}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {projectToDelete && (
+        <DeleteProjectModal
+          project={projectToDelete}
+          onClose={() => setProjectToDelete(null)}
+          onSuccess={() => {
+            setProjectToDelete(null);
+            onProjectDeleted?.();
+          }}
+        />
+      )}
     </div>
   );
 }

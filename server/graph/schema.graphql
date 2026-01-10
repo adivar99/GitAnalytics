@@ -37,6 +37,15 @@ input AssignMemberInput {
   role: ProjectMemberRole!
 }
 
+input DeleteProjectInput {
+  projectId: String!
+}
+
+type DeleteProjectResponse {
+  success: Boolean!
+  message: String!
+}
+
 type User {
   id: String!
   email: String!
@@ -63,6 +72,7 @@ type SignupResponse {
 type Mutation {
   createProject(input: CreateProjectInput!): Project!
   assignMember(input: AssignMemberInput!): ProjectMember!
+  deleteProject(input: DeleteProjectInput!): DeleteProjectResponse!
   login(email: String!, password: String!): LoginResponse!
   signup(
     company_name: String!,

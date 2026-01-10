@@ -42,7 +42,10 @@ export function AdminView() {
         />
       )}
 
-      <ProjectList projects={data?.projects || []} />
+      <ProjectList
+        projects={data?.projects || []}
+        onProjectDeleted={() => refetch()}
+      />
 
       <div className="mt-8">
         <h3 className="text-xl font-semibold mb-4">Users Management</h3>

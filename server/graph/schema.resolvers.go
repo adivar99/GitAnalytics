@@ -166,6 +166,51 @@ func (r *mutationResolver) AssignMember(ctx context.Context, input model.AssignM
 	}, nil
 }
 
+// DeleteProject is the resolver for the deleteProject field.
+func (r *mutationResolver) DeleteProject(ctx context.Context, input model.DeleteProjectInput) (*model.DeleteProjectResponse, error) {
+	// Logic:
+	// 1. Delete the project from projects table via Hasura
+	// 2. Hasura will cascade delete related records (project_members, git_commits, etc.)
+	// 3. Return success response
+
+	var deleteProject struct {
+		DeleteProjectsByPk struct {
+			ID string `json:"id"`
+		} `json:"delete_projects_by_pk"`
+	}
+
+	variables := map[string]interface{}{
+		"projectId": input.ProjectID,
+	}
+
+	err := r.HasuraClient.Request(`
+		mutation DeleteProject($projectId: uuid!) {
+			delete_projects_by_pk(id: $projectId) {
+				id
+			}
+		}
+	`, variables, &deleteProject)
+
+	if err != nil {
+		return &model.DeleteProjectResponse{
+			Success: false,
+			Message: fmt.Sprintf("Failed to delete project: %v", err),
+		}, nil
+	}
+
+	if deleteProject.DeleteProjectsByPk.ID == "" {
+		return &model.DeleteProjectResponse{
+			Success: false,
+			Message: "Project not found",
+		}, nil
+	}
+
+	return &model.DeleteProjectResponse{
+		Success: true,
+		Message: "Project deleted successfully",
+	}, nil
+}
+
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.LoginResponse, error) {
 	var query struct {
