@@ -67,6 +67,7 @@ type ComplexityRoot struct {
 		CreateProject func(childComplexity int, input model.CreateProjectInput) int
 		DeleteProject func(childComplexity int, input model.DeleteProjectInput) int
 		Login         func(childComplexity int, email string, password string) int
+		RemoveMember  func(childComplexity int, input model.RemoveMemberInput) int
 		Signup        func(childComplexity int, companyName string, licenseKey string, adminEmail string, password string, fullName *string) int
 	}
 
@@ -92,6 +93,11 @@ type ComplexityRoot struct {
 		Health func(childComplexity int) int
 	}
 
+	RemoveMemberResponse struct {
+		Message func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	SignupResponse struct {
 		Company func(childComplexity int) int
 		Token   func(childComplexity int) int
@@ -109,6 +115,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateProject(ctx context.Context, input model.CreateProjectInput) (*model.Project, error)
 	AssignMember(ctx context.Context, input model.AssignMemberInput) (*model.ProjectMember, error)
+	RemoveMember(ctx context.Context, input model.RemoveMemberInput) (*model.RemoveMemberResponse, error)
 	DeleteProject(ctx context.Context, input model.DeleteProjectInput) (*model.DeleteProjectResponse, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginResponse, error)
 	Signup(ctx context.Context, companyName string, licenseKey string, adminEmail string, password string, fullName *string) (*model.SignupResponse, error)
@@ -231,6 +238,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["email"].(string), args["password"].(string)), true
+	case "Mutation.removeMember":
+		if e.complexity.Mutation.RemoveMember == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeMember_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveMember(childComplexity, args["input"].(model.RemoveMemberInput)), true
 	case "Mutation.signup":
 		if e.complexity.Mutation.Signup == nil {
 			break
@@ -324,6 +342,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Health(childComplexity), true
 
+	case "RemoveMemberResponse.message":
+		if e.complexity.RemoveMemberResponse.Message == nil {
+			break
+		}
+
+		return e.complexity.RemoveMemberResponse.Message(childComplexity), true
+	case "RemoveMemberResponse.success":
+		if e.complexity.RemoveMemberResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.RemoveMemberResponse.Success(childComplexity), true
+
 	case "SignupResponse.company":
 		if e.complexity.SignupResponse.Company == nil {
 			break
@@ -379,6 +410,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAssignMemberInput,
 		ec.unmarshalInputCreateProjectInput,
 		ec.unmarshalInputDeleteProjectInput,
+		ec.unmarshalInputRemoveMemberInput,
 	)
 	first := true
 
@@ -524,6 +556,15 @@ type DeleteProjectResponse {
   message: String!
 }
 
+input RemoveMemberInput {
+  projectMemberId: String!
+}
+
+type RemoveMemberResponse {
+  success: Boolean!
+  message: String!
+}
+
 type User {
   id: String!
   email: String!
@@ -550,6 +591,7 @@ type SignupResponse {
 type Mutation {
   createProject(input: CreateProjectInput!): Project!
   assignMember(input: AssignMemberInput!): ProjectMember!
+  removeMember(input: RemoveMemberInput!): RemoveMemberResponse!
   deleteProject(input: DeleteProjectInput!): DeleteProjectResponse!
   login(email: String!, password: String!): LoginResponse!
   signup(
@@ -651,6 +693,17 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["password"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeMember_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRemoveMemberInput2gitanalyticsᚋserverᚋgraphᚋmodelᚐRemoveMemberInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1036,6 +1089,53 @@ func (ec *executionContext) fieldContext_Mutation_assignMember(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_assignMember_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeMember(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_removeMember,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().RemoveMember(ctx, fc.Args["input"].(model.RemoveMemberInput))
+		},
+		nil,
+		ec.marshalNRemoveMemberResponse2ᚖgitanalyticsᚋserverᚋgraphᚋmodelᚐRemoveMemberResponse,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeMember(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_RemoveMemberResponse_success(ctx, field)
+			case "message":
+				return ec.fieldContext_RemoveMemberResponse_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RemoveMemberResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeMember_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1716,6 +1816,64 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveMemberResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.RemoveMemberResponse) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RemoveMemberResponse_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RemoveMemberResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveMemberResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveMemberResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.RemoveMemberResponse) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RemoveMemberResponse_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RemoveMemberResponse_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveMemberResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3502,6 +3660,33 @@ func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRemoveMemberInput(ctx context.Context, obj any) (model.RemoveMemberInput, error) {
+	var it model.RemoveMemberInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectMemberId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectMemberId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectMemberId"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectMemberID = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3671,6 +3856,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "assignMember":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_assignMember(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeMember":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeMember(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3897,6 +4089,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var removeMemberResponseImplementors = []string{"RemoveMemberResponse"}
+
+func (ec *executionContext) _RemoveMemberResponse(ctx context.Context, sel ast.SelectionSet, obj *model.RemoveMemberResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeMemberResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveMemberResponse")
+		case "success":
+			out.Values[i] = ec._RemoveMemberResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._RemoveMemberResponse_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4460,6 +4696,25 @@ func (ec *executionContext) unmarshalNProjectMemberRole2gitanalyticsᚋserverᚋ
 
 func (ec *executionContext) marshalNProjectMemberRole2gitanalyticsᚋserverᚋgraphᚋmodelᚐProjectMemberRole(ctx context.Context, sel ast.SelectionSet, v model.ProjectMemberRole) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNRemoveMemberInput2gitanalyticsᚋserverᚋgraphᚋmodelᚐRemoveMemberInput(ctx context.Context, v any) (model.RemoveMemberInput, error) {
+	res, err := ec.unmarshalInputRemoveMemberInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRemoveMemberResponse2gitanalyticsᚋserverᚋgraphᚋmodelᚐRemoveMemberResponse(ctx context.Context, sel ast.SelectionSet, v model.RemoveMemberResponse) graphql.Marshaler {
+	return ec._RemoveMemberResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRemoveMemberResponse2ᚖgitanalyticsᚋserverᚋgraphᚋmodelᚐRemoveMemberResponse(ctx context.Context, sel ast.SelectionSet, v *model.RemoveMemberResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RemoveMemberResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSignupResponse2gitanalyticsᚋserverᚋgraphᚋmodelᚐSignupResponse(ctx context.Context, sel ast.SelectionSet, v model.SignupResponse) graphql.Marshaler {

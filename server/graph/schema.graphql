@@ -46,6 +46,15 @@ type DeleteProjectResponse {
   message: String!
 }
 
+input RemoveMemberInput {
+  projectMemberId: String!
+}
+
+type RemoveMemberResponse {
+  success: Boolean!
+  message: String!
+}
+
 type User {
   id: String!
   email: String!
@@ -72,6 +81,7 @@ type SignupResponse {
 type Mutation {
   createProject(input: CreateProjectInput!): Project!
   assignMember(input: AssignMemberInput!): ProjectMember!
+  removeMember(input: RemoveMemberInput!): RemoveMemberResponse!
   deleteProject(input: DeleteProjectInput!): DeleteProjectResponse!
   login(email: String!, password: String!): LoginResponse!
   signup(

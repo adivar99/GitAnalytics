@@ -79,13 +79,13 @@ export function ProjectList({ projects, onProjectDeleted }: ProjectListProps) {
                 <div className="flex items-center space-x-3">
                   <Link
                     href={`/dashboard/projects/${project.id}`}
-                    className="text-indigo-600 hover:text-indigo-900"
+                    className="p-1 rounded text-indigo-600 hover:bg-indigo-900 hover:text-white hover:drop-shadow-[0_0_2px_rgba(255,255,255,1)] transition-all duration-200"
                   >
                     <BsChevronDoubleRight />
                   </Link>
                   <button
                     onClick={() => setProjectToDelete(project)}
-                    className="text-red-600 hover:text-red-900"
+                    className="p-1 rounded text-red-600 hover:bg-red-900 hover:text-white hover:drop-shadow-[0_0_2px_rgba(255,255,255,1)] transition-all duration-200"
                   >
                     <BsFillTrash3Fill />
                   </button>

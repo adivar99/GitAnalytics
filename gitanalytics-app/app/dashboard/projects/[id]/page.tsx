@@ -8,18 +8,22 @@ import {
   GET_FILE_EXTENSION_STATS,
   GET_TOP_CONTRIBUTORS,
   GET_PROJECT_MEMBERS,
+  GET_PROJECT,
 } from '@/lib/graphql/queries';
 import { BranchHealthChart } from '@/components/charts/BranchHealthChart';
 import { FileDistributionChart } from '@/components/charts/FileDistributionChart';
 import { ChurnHeatmap } from '@/components/charts/ChurnHeatmap';
 import { TopContributors } from '@/components/charts/TopContributors';
 import { AddMemberModal } from '@/components/projects/AddMemberModal';
+import { RemoveMemberModal } from '@/components/projects/RemoveMemberModal';
 import { useState } from 'react';
+import { BsFillTrash3Fill } from 'react-icons/bs';
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const projectId = params.id as string;
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<any>(null);
 
   const { data: branchData, loading: branchLoading } = useQuery(GET_BRANCH_HEALTH, {
     variables: { projectId },
@@ -41,7 +45,12 @@ export default function ProjectDetailPage() {
     skip: !projectId,
   });
 
-  const { data: membersData, loading: membersLoading } = useQuery(GET_PROJECT_MEMBERS, {
+  const { data: membersData, loading: membersLoading, refetch: refetchMembers } = useQuery(GET_PROJECT_MEMBERS, {
+    variables: { projectId },
+    skip: !projectId,
+  });
+
+  const { data: projectData, loading: projectLoading } = useQuery(GET_PROJECT, {
     variables: { projectId },
     skip: !projectId,
   });
@@ -53,9 +62,11 @@ export default function ProjectDetailPage() {
     STALE: branchData?.git_branches?.filter((b: any) => b.health_status === 'STALE').length || 0,
   };
 
-  if (branchLoading || churnLoading || fileLoading || contributorsLoading || membersLoading) {
+  if (branchLoading || churnLoading || fileLoading || contributorsLoading || membersLoading || projectLoading) {
     return <div>Loading project details...</div>;
   }
+
+  const projectName = projectData?.projects_by_pk?.name || 'Project';
 
   return (
     <div className="space-y-6">
@@ -75,7 +86,19 @@ export default function ProjectDetailPage() {
           onClose={() => setShowAddMemberModal(false)}
           onSuccess={() => {
             setShowAddMemberModal(false);
-            // Refetch members data
+            refetchMembers();
+          }}
+        />
+      )}
+
+      {memberToRemove && (
+        <RemoveMemberModal
+          member={memberToRemove}
+          projectName={projectName}
+          onClose={() => setMemberToRemove(null)}
+          onSuccess={() => {
+            setMemberToRemove(null);
+            refetchMembers();
           }}
         />
       )}
@@ -114,6 +137,9 @@ export default function ProjectDetailPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Joined
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -130,6 +156,14 @@ export default function ProjectDetailPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(member.joined_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => setMemberToRemove(member)}
+                      className="p-1 rounded text-red-600 hover:bg-red-900 hover:text-white hover:drop-shadow-[0_0_2px_rgba(255,255,255,1)] transition-all duration-200"
+                    >
+                      <BsFillTrash3Fill />
+                    </button>
                   </td>
                 </tr>
               ))}

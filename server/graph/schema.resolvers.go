@@ -166,6 +166,50 @@ func (r *mutationResolver) AssignMember(ctx context.Context, input model.AssignM
 	}, nil
 }
 
+// RemoveMember is the resolver for the removeMember field.
+func (r *mutationResolver) RemoveMember(ctx context.Context, input model.RemoveMemberInput) (*model.RemoveMemberResponse, error) {
+	// Logic:
+	// 1. Delete the project member from project_members table via Hasura
+	// 2. Return success response
+
+	var removeMember struct {
+		DeleteProjectMembersByPk struct {
+			ID string `json:"id"`
+		} `json:"delete_project_members_by_pk"`
+	}
+
+	variables := map[string]interface{}{
+		"projectMemberId": input.ProjectMemberID,
+	}
+
+	err := r.HasuraClient.Request(`
+		mutation RemoveMember($projectMemberId: uuid!) {
+			delete_project_members_by_pk(id: $projectMemberId) {
+				id
+			}
+		}
+	`, variables, &removeMember)
+
+	if err != nil {
+		return &model.RemoveMemberResponse{
+			Success: false,
+			Message: fmt.Sprintf("Failed to remove member: %v", err),
+		}, nil
+	}
+
+	if removeMember.DeleteProjectMembersByPk.ID == "" {
+		return &model.RemoveMemberResponse{
+			Success: false,
+			Message: "Member not found",
+		}, nil
+	}
+
+	return &model.RemoveMemberResponse{
+		Success: true,
+		Message: "Member removed successfully",
+	}, nil
+}
+
 // DeleteProject is the resolver for the deleteProject field.
 func (r *mutationResolver) DeleteProject(ctx context.Context, input model.DeleteProjectInput) (*model.DeleteProjectResponse, error) {
 	// Logic:

@@ -65,6 +65,15 @@ type ProjectMember struct {
 type Query struct {
 }
 
+type RemoveMemberInput struct {
+	ProjectMemberID string `json:"projectMemberId"`
+}
+
+type RemoveMemberResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type SignupResponse struct {
 	Token   string   `json:"token"`
 	User    *User    `json:"user"`
