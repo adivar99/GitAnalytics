@@ -86,6 +86,21 @@ export const GET_PROJECT_MEMBERS = gql`
   }
 `;
 
+// Query to get project details
+export const GET_PROJECT = gql`
+  query GetProject($projectId: uuid!) {
+    projects_by_pk(id: $projectId) {
+      id
+      name
+      description
+      repo_url
+      company_id
+      manager_user_id
+      created_at
+    }
+  }
+`;
+
 // Query to get branch health stats for a project
 export const GET_BRANCH_HEALTH = gql`
   query GetBranchHealth($projectId: uuid!) {

@@ -337,6 +337,11 @@ case $1 in
         echo "Starting project in dev mode with reloads"
         backend_start
         ;;
+    "build")
+        service_build "dev"
+        echo "Starting project in dev mode with reloads"
+        backend_start
+        ;;
     "prod")
         echo "TODO: Start the project in prod mode without reload and scalable"
         ;;

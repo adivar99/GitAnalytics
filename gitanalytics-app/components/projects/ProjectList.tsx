@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { DeleteProjectModal } from './DeleteProjectModal';
+import { BsChevronDoubleRight, BsFillTrash3Fill } from "react-icons/bs";
 
 interface Project {
   id: string;
@@ -10,7 +11,7 @@ interface Project {
   description?: string;
   repo_url?: string;
   manager_user_id: string;
-  manager?: {
+  user?: {
     id: string;
     email: string;
     full_name?: string;
@@ -68,7 +69,7 @@ export function ProjectList({ projects, onProjectDeleted }: ProjectListProps) {
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
-                  {project.manager?.full_name || project.manager?.email || 'Unknown'}
+                  {project.user?.full_name || project.user?.email || 'Unknown'}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -80,13 +81,13 @@ export function ProjectList({ projects, onProjectDeleted }: ProjectListProps) {
                     href={`/dashboard/projects/${project.id}`}
                     className="text-indigo-600 hover:text-indigo-900"
                   >
-                    View
+                    <BsChevronDoubleRight />
                   </Link>
                   <button
                     onClick={() => setProjectToDelete(project)}
                     className="text-red-600 hover:text-red-900"
                   >
-                    Delete
+                    <BsFillTrash3Fill />
                   </button>
                 </div>
               </td>

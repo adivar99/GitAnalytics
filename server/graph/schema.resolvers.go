@@ -128,11 +128,11 @@ func (r *mutationResolver) AssignMember(ctx context.Context, input model.AssignM
 	variables := map[string]interface{}{
 		"projectId": input.ProjectID,
 		"userId":    input.UserID,
-		"role":      input.Role.String(), // input.Role is default string in this simplified schema? No, it's model.ProjectMemberRole which is a string based type
+		"role":      input.Role.String(),
 	}
 
 	err := r.HasuraClient.Request(`
-		mutation AssignMember($projectId: uuid!, $userId: uuid!, $role: String!) {
+		mutation AssignMember($projectId: uuid!, $userId: uuid!, $role: member_role!) {
 			insert_project_members_one(object: {
 				project_id: $projectId,
 				user_id: $userId,

@@ -46,11 +46,6 @@ export function AdminView() {
         projects={data?.projects || []}
         onProjectDeleted={() => refetch()}
       />
-
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Users Management</h3>
-        <p className="text-gray-600">User management table will be displayed here.</p>
-      </div>
     </div>
   );
 }
