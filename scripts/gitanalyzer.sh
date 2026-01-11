@@ -45,8 +45,9 @@ function service_build() {
         #rm $cur_dir/backend/app/app/buildinfo
         ;;
     "prod")
-        echo "TODO: Building prod image, Start prod image only."
-        # echo "$bld_ver" >$cur_dir/backend/app/app/buildinfo
+        echo "Building prod image, Start prod image only."
+        echo "$bld_ver" >$cur_dir/backend/app/app/buildinfo
+        NODE_ENV=production docker-compose build
         # TAG=${rel_ver} FRONTEND_ENV=production bash ./scripts/build.sh
         # # Update stack file also.
         # DOMAIN=$DOMAIN TRAEFIK_TAG=$TRAEFIK_TAG STACK_NAME=$STACK_NAME TAG=${rel_ver} bash scripts/deploy.sh "config"
@@ -69,8 +70,11 @@ function service_help() {
     echo "$0 release - Builds all images and generates release tar. [TODO]"
     echo "$0 run - Takes argument and runs as per subcommand below"
     echo "$0 start   - Starts prebuilt image."
-    echo "      $0 start dev  - Starts dev image instance."
-    echo "      $0 start prod - Starts production image instance. [TODO]"
+    echo "      $0 start dev  - Starts dev image instance (yarn dev)."
+    echo "      $0 start prod - Starts production image instance (yarn start)."
+    echo "$0 restart - Restarts running services."
+    echo "      $0 restart dev  - Restarts in development mode."
+    echo "      $0 restart prod - Restarts in production mode."
     echo "$0 stop    - Stops running $project."
     echo "$0 status  - Current status of $project. [TODO]"
     echo "$0 logs [Service]    - Shows logs of given service or of all services by default."
@@ -93,12 +97,20 @@ NC='\033[0m' # No Color
 BACKEND_DIR="$cur_dir/graphql"
 
 backend_start() {
-    echo -e "${GREEN}Starting backend services...${NC}"
-    
+    deployment=$1
+    echo -e "${GREEN}Starting backend services in ${deployment} mode...${NC}"
+
+    # Set NODE_ENV based on deployment type
+    if [ "$deployment" = "production" ]; then
+        export NODE_ENV=production
+    else
+        export NODE_ENV=development
+    fi
+
     # Navigate to backend graphql directory and start containers
     cd "$BACKEND_DIR" || exit 1
-    
-    echo -e "${YELLOW}Starting Docker containers...${NC}"
+
+    echo -e "${YELLOW}Starting Docker containers with NODE_ENV=${NODE_ENV}...${NC}"
     docker compose up -d
     
     if [ $? -ne 0 ]; then
@@ -239,10 +251,11 @@ backend_stop() {
 }
 
 backend_restart() {
+    deployment=$1
     echo -e "${YELLOW}Restarting backend services...${NC}"
     backend_stop
     sleep 2
-    backend_start
+    backend_start "$deployment"
 }
 
 backend_status() {
@@ -305,6 +318,7 @@ backend_console() {
 }
 
 backend_reset() {
+    deployment=$1
     echo -e "${YELLOW}⚠️  WARNING: This will remove all containers and volumes!${NC}"
     echo -e "${YELLOW}All data will be lost. This is useful for a fresh start.${NC}"
     read -p "Are you sure you want to continue? (yes/no): " confirm
@@ -312,15 +326,15 @@ backend_reset() {
         echo -e "${YELLOW}Reset cancelled.${NC}"
         return
     fi
-    
+
     echo -e "${YELLOW}Stopping and removing containers and volumes...${NC}"
     cd "$BACKEND_DIR" || exit 1
     docker compose down -v
     cd - > /dev/null
-    
+
     echo -e "${GREEN}✓ Containers and volumes removed${NC}"
     echo -e "${YELLOW}Starting fresh...${NC}"
-    backend_start
+    backend_start "$deployment"
 }
 
 case $1 in
@@ -335,20 +349,38 @@ case $1 in
     case $2 in
     "dev")
         echo "Starting project in dev mode with reloads"
-        backend_start
+        backend_start "development"
         ;;
     "build")
-        service_build "dev"
+        service_build dev
         echo "Starting project in dev mode with reloads"
-        backend_start
+        backend_start "development"
         ;;
     "prod")
-        echo "TODO: Start the project in prod mode without reload and scalable"
+        echo "Starting project in prod mode without reload and scalable"
+        backend_start "production"
+        ;;
+    *)
+        echo "Please specify 'dev' or 'prod'"
+        echo "Usage: $0 start [dev|prod]"
+        exit 1
         ;;
     esac
     ;;
 "restart")
-    backend_restart
+    case $2 in
+    "dev")
+        backend_restart "development"
+        ;;
+    "prod")
+        backend_restart "production"
+        ;;
+    *)
+        echo "Please specify 'dev' or 'prod'"
+        echo "Usage: $0 restart [dev|prod]"
+        exit 1
+        ;;
+    esac
     ;;
 "logs")
     if [ $# == 1 ]; then

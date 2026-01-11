@@ -107,6 +107,8 @@ services:
     build:
       context: ./gitanalytics-app
       dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "3000:3000"
     restart: always
@@ -114,6 +116,7 @@ services:
       NEXT_PUBLIC_API_URL: http://go-server:8081
       NEXT_PUBLIC_HASURA_URL: http://localhost:8080/v1/graphql
       NEXT_PUBLIC_HASURA_ADMIN_SECRET: myadminsecretkey
+      NODE_ENV: ${NODE_ENV:-development}
     volumes:
       - ./gitanalytics-app:/src/gitanalytics-app
       - /src/gitanalytics-app/node_modules # to prevent overwriting node_modules
