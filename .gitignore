@@ -6,3 +6,12 @@
 **/*/node_modules
 node_modules/
 package-lock.json
+
+# Virtual environments
+.venv
+
+# env files
+.env
+
+# Gitanalytics CLI
+gitanalytics.yml

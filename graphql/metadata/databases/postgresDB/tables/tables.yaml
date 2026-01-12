@@ -1,0 +1,8 @@
+- "!include public_churn_metrics.yaml"
+- "!include public_companies.yaml"
+- "!include public_file_extension_stats.yaml"
+- "!include public_git_branches.yaml"
+- "!include public_git_commits.yaml"
+- "!include public_project_members.yaml"
+- "!include public_projects.yaml"
+- "!include public_users.yaml"

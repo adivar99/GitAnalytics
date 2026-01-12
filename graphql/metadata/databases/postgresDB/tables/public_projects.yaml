@@ -1,0 +1,148 @@
+table:
+  name: projects
+  schema: public
+object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: user
+    using:
+      foreign_key_constraint_on: manager_user_id
+array_relationships:
+  - name: churn_metrics
+    using:
+      foreign_key_constraint_on:
+        column: project_id
+        table:
+          name: churn_metrics
+          schema: public
+  - name: git_branches
+    using:
+      foreign_key_constraint_on:
+        column: project_id
+        table:
+          name: git_branches
+          schema: public
+  - name: git_commits
+    using:
+      foreign_key_constraint_on:
+        column: project_id
+        table:
+          name: git_commits
+          schema: public
+  - name: project_members
+    using:
+      foreign_key_constraint_on:
+        column: project_id
+        table:
+          name: project_members
+          schema: public
+insert_permissions:
+  - role: administrator
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      columns:
+        - name
+        - repo_url
+        - description
+        - created_at
+        - company_id
+        - id
+        - manager_user_id
+    comment: ""
+  - role: manager
+    permission:
+      check:
+        manager_user_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - name
+        - repo_url
+        - description
+        - created_at
+        - company_id
+        - id
+        - manager_user_id
+    comment: ""
+select_permissions:
+  - role: administrator
+    permission:
+      columns: []
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+    comment: ""
+  - role: developer
+    permission:
+      columns:
+        - name
+        - repo_url
+        - description
+        - created_at
+        - company_id
+        - id
+        - manager_user_id
+      filter:
+        _or:
+          - manager_user_id:
+              _eq: X-Hasura-User-Id
+          - project_members:
+              user_id:
+                _eq: X-Hasura-User-Id
+    comment: ""
+  - role: guest
+    permission:
+      columns:
+        - name
+        - repo_url
+        - description
+        - created_at
+        - company_id
+        - id
+        - manager_user_id
+      filter:
+        project_members:
+          role:
+            _eq: GUEST
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+  - role: manager
+    permission:
+      columns:
+        - name
+        - repo_url
+        - description
+        - created_at
+        - company_id
+        - id
+        - manager_user_id
+      filter:
+        manager_user_id:
+          _eq: X-Hasura-User-Id
+    comment: Managers can edit project details
+update_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - name
+        - repo_url
+        - description
+        - created_at
+        - company_id
+        - id
+        - manager_user_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: administrator
+    permission:
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+    comment: ""

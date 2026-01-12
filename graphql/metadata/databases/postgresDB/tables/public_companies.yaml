@@ -1,0 +1,66 @@
+table:
+  name: companies
+  schema: public
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: admin_user_id
+array_relationships:
+  - name: projects
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          name: projects
+          schema: public
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          name: users
+          schema: public
+insert_permissions:
+  - role: administrator
+    permission:
+      check:
+        id:
+          _eq: X-Hasura-Company-Id
+      columns: []
+    comment: ""
+select_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - license_key
+        - name
+        - max_projects
+        - created_at
+        - id
+        - admin_user_id
+      filter:
+        id:
+          _eq: X-Hasura-Company-Id
+    comment: ""
+update_permissions:
+  - role: administrator
+    permission:
+      columns:
+        - license_key
+        - name
+        - max_projects
+        - created_at
+        - id
+        - admin_user_id
+      filter:
+        id:
+          _eq: X-Hasura-Company-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: administrator
+    permission:
+      filter:
+        id:
+          _eq: X-Hasura-Company-Id
+    comment: ""

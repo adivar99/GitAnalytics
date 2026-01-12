@@ -1,0 +1,105 @@
+# GraphQL schema for Hasura Actions
+# These types will be used when Hasura calls our Go server endpoints
+
+enum ProjectMemberRole {
+  DEVELOPER
+  GUEST
+}
+
+type Project {
+  id: String!
+  name: String!
+  companyId: String!
+  managerUserId: String!
+  description: String
+  repoUrl: String
+  createdAt: String!
+}
+
+type ProjectMember {
+  id: String!
+  projectId: String!
+  userId: String!
+  role: ProjectMemberRole!
+  joinedAt: String!
+}
+
+input CreateProjectInput {
+  name: String!
+  managerUserId: String!
+  description: String
+  repoUrl: String
+}
+
+input AssignMemberInput {
+  projectId: String!
+  userId: String!
+  role: ProjectMemberRole!
+}
+
+input DeleteProjectInput {
+  projectId: String!
+}
+
+type DeleteProjectResponse {
+  success: Boolean!
+  message: String!
+}
+
+input RemoveMemberInput {
+  projectMemberId: String!
+}
+
+type RemoveMemberResponse {
+  success: Boolean!
+  message: String!
+}
+
+type User {
+  id: String!
+  email: String!
+  fullName: String
+  companyId: String!
+}
+
+type Company {
+  id: String!
+  name: String!
+}
+
+type LoginResponse {
+  token: String!
+  user: User!
+}
+
+type SignupResponse {
+  token: String!
+  user: User!
+  company: Company!
+}
+
+type Mutation {
+  createProject(input: CreateProjectInput!): Project!
+  assignMember(input: AssignMemberInput!): ProjectMember!
+  removeMember(input: RemoveMemberInput!): RemoveMemberResponse!
+  deleteProject(input: DeleteProjectInput!): DeleteProjectResponse!
+  login(email: String!, password: String!): LoginResponse!
+  signup(
+    company_name: String!,
+    license_key: String!,
+    admin_email: String!,
+    password: String!,
+    full_name: String
+  ): SignupResponse!
+  addUser(
+    email: String!,
+    password: String!,
+    full_name: String,
+    company_id: String!
+  ): User!
+}
+
+type Query {
+  health: String!
+}
+

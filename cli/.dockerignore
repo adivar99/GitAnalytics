@@ -1,0 +1,47 @@
+# Ignore build artifacts
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore test files
+*_test.go
+test/
+tests/
+
+# Ignore documentation
+*.md
+!README.md
+docs/
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+*.tmp
+*.log
+analytics_output.json
+
+# Ignore Docker files (we're already building)
+Dockerfile*
+.dockerignore
+build-docker*.sh
+
+# Ignore example/config files
+gitanalytics.yml
+gitanalytics.yml.example
+.gitanalytics
+

@@ -1,0 +1,48 @@
+enum ProjectMemberRole {
+  DEVELOPER
+  GUEST
+}
+
+input CreateProjectInput {
+  name: String!
+  managerUserId: uuid!
+  description: String
+  repoUrl: String
+}
+
+input AssignMemberInput {
+  projectId: uuid!
+  userId: uuid!
+  role: ProjectMemberRole!
+}
+
+type Project {
+  id: uuid!
+  name: String!
+  companyId: uuid!
+  managerUserId: uuid!
+  description: String
+  repoUrl: String
+  createdAt: timestamptz!
+}
+
+type ProjectMember {
+  id: uuid!
+  projectId: uuid!
+  userId: uuid!
+  role: ProjectMemberRole!
+  joinedAt: timestamptz!
+}
+
+type UserResponse {
+  id: String!
+  email: String!
+  full_name: String
+  company_id: String!
+}
+
+type CompanyResponse {
+  id: String!
+  name: String!
+}
+
