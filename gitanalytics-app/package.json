@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.0",
+    "framer-motion": "^12.26.1",
     "graphql": "^16.9.0",
     "js-cookie": "^3.0.5",
     "next": "16.0.8",
