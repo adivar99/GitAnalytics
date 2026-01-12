@@ -11,6 +11,7 @@ import (
 
 	"gitanalytics/server/graph"
 	"gitanalytics/server/graph/generated"
+	"gitanalytics/server/handlers"
 	"gitanalytics/server/pkg/hasura"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -29,9 +30,18 @@ func main() {
 	hasuraClient := hasura.NewClient()
 
 	// Create GraphQL Server
-	gqlServer := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
-		HasuraClient: hasuraClient,
-	}}))
+	gqlServer := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{
+				Resolvers: &graph.Resolver{
+					HasuraClient: hasuraClient,
+				},
+			},
+		),
+	)
+
+	// Create Analytics Handler
+	analyticsHandler := handlers.NewAnalyticsHandler(hasuraClient)
 
 	// Routes
 	mux.Handle("/query", gqlServer)
@@ -41,6 +51,28 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
 	})
+	mux.HandleFunc("/ingest", analyticsHandler.IngestAnalytics)
+
+	// Logging middleware
+	loggingHandler := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" {
+				// Skip logging for /ingest as it's already handled within the handler
+				next.ServeHTTP(w, r)
+				return
+			}
+			start := time.Now()
+
+			// Log incoming request
+			log.Printf("[%s] %s %s from %s", r.Method, r.URL.Path, r.Proto, r.RemoteAddr)
+
+			next.ServeHTTP(w, r)
+
+			// Log request completion
+			duration := time.Since(start)
+			log.Printf("[%s] %s completed in %v", r.Method, r.URL.Path, duration)
+		})
+	}
 
 	// Simple CORS middleware wrapper since we deleted the middleware package
 	corsHandler := func(next http.Handler) http.Handler {
@@ -54,7 +86,7 @@ func main() {
 			}
 			next.ServeHTTP(w, r)
 		})
-	}(mux)
+	}(loggingHandler(mux))
 
 	// Get port from environment or use default
 	port := os.Getenv("PORT")
@@ -73,9 +105,18 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Server starting on port %s", port)
+		log.Println("=====================================")
+		log.Printf("🚀 GitAnalytics Server Starting")
+		log.Printf("📍 Port: %s", port)
+		log.Printf("🔗 GraphQL Playground: http://localhost:%s/", port)
+		log.Printf("🔗 GraphQL Endpoint: http://localhost:%s/query", port)
+		log.Printf("🔗 Ingest Endpoint: http://localhost:%s/ingest", port)
+		log.Printf("🔗 Health Check: http://localhost:%s/health", port)
+		log.Println("=====================================")
+		log.Printf("✅ Server is ready to accept requests")
+
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server failed to start: %v", err)
+			log.Fatalf("❌ Server failed to start: %v", err)
 		}
 	}()
 
@@ -84,15 +125,15 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("Shutting down server...")
+	log.Println("⚠️  Shutdown signal received, shutting down server...")
 
 	// Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		log.Fatalf("❌ Server forced to shutdown: %v", err)
 	}
 
-	log.Println("Server exited")
+	log.Println("✅ Server exited gracefully")
 }

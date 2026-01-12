@@ -16,12 +16,16 @@ import { ChurnHeatmap } from '@/components/charts/ChurnHeatmap';
 import { TopContributors } from '@/components/charts/TopContributors';
 import { AddMemberModal } from '@/components/projects/AddMemberModal';
 import { RemoveMemberModal } from '@/components/projects/RemoveMemberModal';
+import { DownloadConfigButton } from '@/components/projects/DownloadConfigButton';
+import { CLIInstructions } from '@/components/projects/CLIInstructions';
+import { useAuth } from '@/app/hooks/useAuth';
 import { useState } from 'react';
 import { BsFillTrash3Fill } from 'react-icons/bs';
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const projectId = params.id as string;
+  const { user } = useAuth();
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<any>(null);
 
@@ -72,12 +76,18 @@ export default function ProjectDetailPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Project Details</h1>
-        <button
-          onClick={() => setShowAddMemberModal(true)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-        >
-          Add Member
-        </button>
+        <div className="flex gap-3">
+          <DownloadConfigButton
+            userId={user?.id || ''}
+            projectId={projectId}
+          />
+          <button
+            onClick={() => setShowAddMemberModal(true)}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Add Member
+          </button>
+        </div>
       </div>
 
       {showAddMemberModal && (
@@ -102,6 +112,8 @@ export default function ProjectDetailPage() {
           }}
         />
       )}
+
+      <CLIInstructions />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BranchHealthChart data={branchHealth} />

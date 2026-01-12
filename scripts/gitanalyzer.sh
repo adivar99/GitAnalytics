@@ -21,6 +21,13 @@ rel_ver="v${rel_mjr}.${rel_mnr}.${rel_pch}-devbuild${bld_num}"
 
 source $cur_dir/.env
 
+build_cli() {
+    echo "Building CLI"
+    cd $cur_dir/cli && make docker-build
+    cd - > /dev/null
+    mv $cur_dir/cli/bin/gitanalytics-cli $cur_dir/gitanalytics-app/public
+}
+
 function service_build() {
     bld_ver=$(whoami):${rel_ver}:${rel_type}:$(date +'%d%m%y-%H%M'):$(git rev-parse --abbrev-ref HEAD):$(git rev-parse --short HEAD)
     case "$2" in
@@ -40,6 +47,7 @@ function service_build() {
         echo "Building dev image, Start dev service only."
         bld_ver=$(whoami):${rel_ver}:devel:$(date +'%d%m%y-%H%M'):$(git rev-parse --abbrev-ref HEAD):$(git rev-parse --short HEAD)
         echo "$bld_ver" >$cur_dir/backend/app/app/buildinfo
+        build_cli
         docker-compose build
         # Removing this file in dev env will delete it from running container too.
         #rm $cur_dir/backend/app/app/buildinfo
@@ -47,6 +55,7 @@ function service_build() {
     "prod")
         echo "Building prod image, Start prod image only."
         echo "$bld_ver" >$cur_dir/backend/app/app/buildinfo
+        build_cli
         NODE_ENV=production docker-compose build
         # TAG=${rel_ver} FRONTEND_ENV=production bash ./scripts/build.sh
         # # Update stack file also.
@@ -171,7 +180,7 @@ backend_start() {
         echo -e "${GREEN}✓ Metadata applied (database registered)${NC}"
         
         # echo -e "${YELLOW}Step 2: Applying migrations (to create tables)...${NC}"
-        # hasura migrate apply --endpoint http://localhost:8080 --admin-secret myadminsecretkey --database-name pg_db
+        # hasura migrate apply --from-server --endpoint http://localhost:8080 --admin-secret myadminsecretkey --database-name postgresDB
         
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✓ Migrations applied successfully!${NC}"
