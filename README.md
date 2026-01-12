@@ -131,7 +131,7 @@ Before you begin, ensure you have the following installed:
 #### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/GitAnalytics.git
+git clone https://github.com/adivar99/GitAnalytics.git
 cd GitAnalytics
 ```
 
