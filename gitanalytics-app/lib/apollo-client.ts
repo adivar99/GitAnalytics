@@ -11,11 +11,12 @@ const authLink = setContext((_, { headers }) => {
   // Get token from cookie
   const token = Cookies.get('auth_token');
 
+  // The JWT token already contains user ID and role in its claims
+  // Hasura will automatically extract these from the token
   return {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : '',
-      'x-hasura-admin-secret': process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET || 'myadminsecretkey',
     },
   };
 });

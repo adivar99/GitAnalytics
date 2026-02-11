@@ -21,8 +21,6 @@ export default function DashboardLayout({
     variables: { userId: user?.id },
   });
 
-  console.log("User Data: ");
-  console.log(userData);
 
   if (loading) {
     return <div>Loading...</div>;

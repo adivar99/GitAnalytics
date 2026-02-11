@@ -46,6 +46,46 @@ select_permissions:
         company_id:
           _eq: X-Hasura-Company-Id
     comment: ""
+  - role: developer
+    permission:
+      columns:
+        - email
+        - full_name
+        - password_hash
+        - created_at
+        - id
+        - company_id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+  - role: guest
+    permission:
+      columns:
+        - email
+        - full_name
+        - password_hash
+        - created_at
+        - id
+        - company_id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+  - role: manager
+    permission:
+      columns:
+        - email
+        - full_name
+        - password_hash
+        - created_at
+        - id
+        - company_id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""
 update_permissions:
   - role: administrator
     permission:
@@ -59,6 +99,28 @@ update_permissions:
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
+      check: null
+    comment: ""
+  - role: developer
+    permission:
+      columns:
+        - email
+        - full_name
+        - password_hash
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: manager
+    permission:
+      columns:
+        - email
+        - full_name
+        - password_hash
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
       check: null
     comment: ""
 delete_permissions:

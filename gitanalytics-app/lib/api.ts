@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { useAuth } from '@/app/hooks/useAuth';
 
 const API_URL =  process.env.NEXT_PUBLIC_HASURA_URL || 'http://localhost:8080/v1/graphql';
 
@@ -13,12 +14,13 @@ export class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async graphqlRequest<T>(
+  async graphqlRequest<T>(
     query: string,
     variables: Record<string, any> = {}
   ): Promise<T> {
     const token = Cookies.get('auth_token');
-    console.log(`Sending request to ${this.baseUrl} with token: ${token ? 'present' : 'absent'}`);
+    console.log(`Sending request to ${this.baseUrl} with token: ${token ? `present ${token}` : 'absent'}`);
+    // const { user } = useAuth();
     const response = await fetch(`${this.baseUrl}`, {
       method: 'POST',
       headers: {
@@ -108,45 +110,6 @@ export class ApiClient {
       data
     );
     return result.signup;
-  }
-
-  async ingest(data: any) {
-    // Assuming ingest is also a mutation or should be handled differently.
-    // If it's a direct REST call to Go server, it should use a different base URL or path.
-    // For now, I'll assume it's also wrapped in an action or leave it as a comment if unsure,
-    // but the previous code was definitely broken for /v1/graphql/ingest
-    // Let's assume it should be a direct POST to the Go server for now if it's not an action,
-    // or if the user intends to make it an action, it should be a mutation.
-    // Given the previous code, I'll switch it to a direct fetch to the Go server (localhost:8081)
-    // assuming the frontend can reach it, OR assuming it's an action.
-    // Safest bet for "Actions" context is to use a mutation, assuming 'ingest' action exists.
-
-    // However, looking at main.go, /ingest is a standard handler.
-    // If the user hasn't made an action for it, we might want to hit port 8081 directly.
-    // But this client is configured for 8080 (Hasura).
-    // Let's temporary leave it using graphqlRequest assuming an 'ingest' action might be created,
-    // or better, if it's not an action, we should use a different client or URL.
-
-    // I will comment it out or leave it as a TODO/Warning because we don't have enough info,
-    // but to avoid breaking compilation, I'll implement it as a mutation placeholder.
-
-    /*
-    const query = `
-      mutation Ingest($data: jsonb!) {
-        ingest(data: $data) {
-          status
-        }
-      }
-    `;
-    return this.graphqlRequest(query, { data });
-    */
-
-    // Actually, let's look at the previous impl: request('/ingest', ...).
-    // It was appending /ingest to /v1/graphql.
-    // I'll leave it simple for now, maybe just direct fetch to 8081 if possible,
-    // but CROS might be an issue.
-    // Let's just return a placeholder error or assume it's NOT used in the signup flow.
-    throw new Error("Ingest not implemented in new GraphQL client yet");
   }
 }
 

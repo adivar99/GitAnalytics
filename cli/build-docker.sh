@@ -16,7 +16,6 @@ NC='\033[0m' # No Color
 IMAGE_NAME="gitanalytics-cli-builder"
 BINARY_NAME="gitanalytics-cli"
 BUILD_DIR="bin"
-PLATFORM="${1:-linux/amd64}"  # Default to linux/amd64, can be overridden
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}GitAnalytics CLI Docker Build${NC}"
@@ -79,21 +78,6 @@ echo -e "${GREEN}Build Complete!${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo -e "Binary location: ${GREEN}$BINARY_PATH${NC}"
 echo -e "Binary size: ${GREEN}$BINARY_SIZE${NC}"
-echo ""
-echo -e "To run the CLI:"
-echo -e "  ${YELLOW}./$BUILD_DIR/$BINARY_NAME --help${NC}"
-echo ""
-echo -e "To test the CLI:"
-echo -e "  ${YELLOW}./$BUILD_DIR/$BINARY_NAME --repo . --user-id <user-id> --project-id <project-id>${NC}"
-echo ""
-
-# Optional: Clean up Docker image
-read -p "Do you want to remove the Docker build image? (y/N) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    docker rmi "$IMAGE_NAME" > /dev/null
-    echo -e "${GREEN}✓ Docker image removed${NC}"
-fi
 
 echo -e "${GREEN}Done!${NC}"
 

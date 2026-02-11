@@ -22,9 +22,10 @@ interface Project {
 interface ProjectListProps {
   projects: Project[];
   onProjectDeleted?: () => void;
+  showDeleteButton?: boolean;
 }
 
-export function ProjectList({ projects, onProjectDeleted }: ProjectListProps) {
+export function ProjectList({ projects, onProjectDeleted, showDeleteButton = true }: ProjectListProps) {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   if (projects.length === 0) {
     return (
@@ -83,12 +84,14 @@ export function ProjectList({ projects, onProjectDeleted }: ProjectListProps) {
                   >
                     <BsChevronDoubleRight />
                   </Link>
-                  <button
-                    onClick={() => setProjectToDelete(project)}
-                    className="p-1 rounded text-red-600 hover:bg-red-900 hover:text-white hover:drop-shadow-[0_0_2px_rgba(255,255,255,1)] transition-all duration-200"
-                  >
-                    <BsFillTrash3Fill />
-                  </button>
+                  {showDeleteButton && (
+                    <button
+                      onClick={() => setProjectToDelete(project)}
+                      className="p-1 rounded text-red-600 hover:bg-red-900 hover:text-white hover:drop-shadow-[0_0_2px_rgba(255,255,255,1)] transition-all duration-200"
+                    >
+                      <BsFillTrash3Fill />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

@@ -69,6 +69,43 @@ export const GET_MEMBER_PROJECTS = gql`
   }
 `;
 
+// Unified query to get all projects a user has access to with their role
+export const GET_USER_PROJECTS_WITH_ROLES = gql`
+  query GetUserProjectsWithRoles($userId: uuid!) {
+    # Get user info to check if admin
+    users(where: { id: { _eq: $userId } }) {
+      id
+      company_id
+    }
+
+    # Get projects where user is a member (developer or guest)
+    member_projects: project_members(where: { user_id: { _eq: $userId } }) {
+      id
+      role
+      project {
+        id
+        name
+        description
+        repo_url
+        manager_user_id
+        company_id
+        created_at
+      }
+    }
+
+    # Get projects where user is the manager
+    managed_projects: projects(where: { manager_user_id: { _eq: $userId } }) {
+      id
+      name
+      description
+      repo_url
+      manager_user_id
+      company_id
+      created_at
+    }
+  }
+`;
+
 // Query to get project members
 export const GET_PROJECT_MEMBERS = gql`
   query GetProjectMembers($projectId: uuid!) {

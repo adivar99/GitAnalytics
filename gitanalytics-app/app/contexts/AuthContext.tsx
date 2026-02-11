@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { apiClient } from '@/lib/api';
-import { GET_CURRENT_USER } from '@/lib/graphql/queries';
+import apolloClient from '@/lib/apollo-client';
 
 interface User {
   id: string;
@@ -12,8 +12,16 @@ interface User {
   company_id: string;
 }
 
+export enum UserRole {
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  DEVELOPER = 'developer',
+  GUEST = 'guest'
+}
+
 interface AuthContextType {
   user: User | null;
+  userRole: UserRole | null;
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -24,6 +32,8 @@ interface AuthContextType {
     password: string;
     full_name?: string;
   }) => Promise<void>;
+  updateUserRole: (role: UserRole) => void;
+  getRoleForProject: (projectId: string) => Promise<string | null>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -32,6 +42,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,40 +52,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (savedToken) {
         setToken(savedToken);
         try {
-          // Decode token to get user ID
+          // Decode token to get user ID and role
           const payload = JSON.parse(atob(savedToken.split('.')[1]));
-          // Check for standard Hasura claims or root level sub
-          const userId = payload['https://hasura.io/jwt/claims']?.['x-hasura-user-id'] || payload.sub;
+          console.log("Payload: ", payload);
+
+          // Extract Hasura claims
+          const hasuraClaims = payload['https://hasura.io/jwt/claims'];
+          const userId = hasuraClaims?.['x-hasura-user-id'] || payload.sub;
+          const defaultRole = hasuraClaims?.['x-hasura-default-role'];
+
+          // Set user role from JWT token
+          if (defaultRole === 'admin') {
+            setUserRole(UserRole.ADMIN);
+          } else if (defaultRole === 'manager') {
+            setUserRole(UserRole.MANAGER);
+          } else {
+            setUserRole(UserRole.DEVELOPER);
+          }
+
+          console.log('Setting User role as: ', userRole);
 
           if (userId) {
-            // Fetch user details
-            // We use apiClient directly here to avoid circular dependency or Apollo hook rules in useEffect
-            // But apiClient.graphqlRequest is private. We can assume we need to make a raw fetch or use a public method.
-            // Actually apiClient.graphqlRequest is private.
-            // We can extend ApiClient or make a quick fetch here.
-            // Let's use fetch directly for this specific restoration to keep it simple and encapsulated.
-            const response = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080') + '/v1/graphql', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${savedToken}`,
-              },
-              body: JSON.stringify({
-                query: `
-                  query GetCurrentUserContext($userId: uuid!) {
-                    users(where: { id: { _eq: $userId } }) {
-                      id
-                      email
-                      full_name
-                      company_id
-                    }
-                  }
-                `,
-                variables: { userId },
-              }),
+            // Fetch user details from database using Apollo Client
+            const GET_CURRENT_USER_CONTEXT = `
+              query GetCurrentUserContext($userId: uuid!) {
+                users(where: { id: { _eq: $userId } }) {
+                  id
+                  email
+                  full_name
+                  company_id
+                }
+              }
+            `;
+
+            const result = await apolloClient.query({
+              query: GET_CURRENT_USER_CONTEXT,
+              variables: { userId },
+              fetchPolicy: 'network-only', // Always fetch fresh data
             });
 
-            const result = await response.json();
             if (result.data?.users?.[0]) {
               const userData = result.data.users[0];
               setUser({
@@ -83,12 +99,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 full_name: userData.full_name,
                 company_id: userData.company_id
               });
+            } else {
+              console.error('=== AuthContext: No user found in database ===');
             }
           }
         } catch (error) {
           console.error("Failed to restore user session:", error);
-          // If token is invalid, maybe logout?
-          // Cookies.remove('auth_token'); 
+          // If token is invalid, logout
+          Cookies.remove('auth_token');
         }
       }
       setLoading(false);
@@ -97,27 +115,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
+  const updateUserRole = (role: UserRole) => {
+    setUserRole(role);
+  };
+
+  const getRoleForProject = async (projectId: string) => {
+    const getRoleQuery = `
+      query GetMemberRole ($userId: uuid!, $projectId: uuid!) {
+        project_members(where: {project_id: {_eq: $projectId}, user_id: {_eq: $userId}}) {
+          role
+        }
+      }
+    `;
+
+    const variables = {
+      userId: user?.id,
+      projectId
+    };
+    const result = await apiClient.graphqlRequest<{ project_members: { role: string }[] }>(
+      getRoleQuery,
+      variables
+    );
+
+    if (result.project_members?.[0]) {
+      return result.project_members[0].role;
+    }
+
+    return null;
+
+  };
+
   const login = async (email: string, password: string) => {
     try {
       const response = await apiClient.login(email, password);
-      // Ensure response.user structure matches our User interface
-      // apiClient.login returns { token, user: { id, email, fullName/full_name, companyId/company_id } }
-      // We need to map it correctly.
       const { token: newToken, user: userData } = response;
 
       // Store token in cookie
       Cookies.set('auth_token', newToken, { expires: 1 }); // 1 day expiry
 
       setToken(newToken);
-      // Map response user to state user if needed. 
-      // Assuming API returns consistent casing, but let's be safe.
-      // previous implementation just did setUser(userData).
-      // Let's inspect userData from api.ts: { id, email, fullName, companyId }
-      // Our interface uses snake_case keys (full_name, company_id) because queries return that.
-      // We should unify. queries.ts returns snake_case.
-      // api.ts login mutation returns camelCase aliases (fullName, companyId) -> see api.ts line 50.
-      // So we have a mismatch.
-      // I will map it here.
+
+      // Extract role from JWT token
+      try {
+        const payload = JSON.parse(atob(newToken.split('.')[1]));
+        const hasuraClaims = payload['https://hasura.io/jwt/claims'];
+        const defaultRole = hasuraClaims?.['x-hasura-default-role'];
+
+        if (defaultRole === 'admin') {
+          setUserRole(UserRole.ADMIN);
+        } else if (defaultRole === 'manager') {
+          setUserRole(UserRole.MANAGER);
+        } else {
+          setUserRole(UserRole.DEVELOPER);
+        }
+      } catch (err) {
+        console.error("Failed to decode token:", err);
+      }
+
+      // Set user data
       setUser({
         id: userData.id,
         email: userData.email,
@@ -150,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         full_name: userData.fullName || userData.full_name,
         company_id: userData.companyId || userData.company_id
       });
+      setUserRole(UserRole.ADMIN);
     } catch (error) {
       throw error;
     }
@@ -159,12 +215,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.remove('auth_token');
     setToken(null);
     setUser(null);
+    setUserRole(null);
   };
 
   const value: AuthContextType = {
     user,
+    userRole,
     token,
     loading,
+    updateUserRole,
+    getRoleForProject,
     login,
     signup,
     logout,

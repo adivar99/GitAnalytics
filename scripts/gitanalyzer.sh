@@ -19,7 +19,7 @@ rel_type="Interim"
 bld_num=2
 rel_ver="v${rel_mjr}.${rel_mnr}.${rel_pch}-devbuild${bld_num}"
 
-source $cur_dir/.env
+# source $cur_dir/.env
 
 build_cli() {
     echo "Building CLI"

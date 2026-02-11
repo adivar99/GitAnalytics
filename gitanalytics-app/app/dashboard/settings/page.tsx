@@ -18,9 +18,6 @@ export default function SettingsPage() {
     return <div>Loading settings...</div>;
   }
 
-  console.log("Settings: ");
-  console.log(userData);
-
   // Check if user is admin
   const isAdmin = userData?.company?.admin_user_id === user?.id;
 
